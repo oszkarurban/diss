@@ -1,0 +1,24 @@
+{
+    "model": null,
+    "humaneval": [
+        {
+            "batch_size": 1,
+            "steps": null,
+            "topk": null,
+            "num_draft_tokens": null,
+            "metrics": [
+                {
+                    "latency": 4.407596655189991,
+                    "output_throughput": 222.11651305416464,
+                    "accept_length": 4.148305084745763,
+                    "accuracy": 0.0,
+                    "num_questions": 3,
+                    "num_valid_predictions": 3,
+                    "categorical_performance": null,
+                    "spec_signal_log": null
+                }
+            ],
+            "num_samples": 3
+        }
+    ]
+}
