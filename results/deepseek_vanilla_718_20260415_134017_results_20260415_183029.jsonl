@@ -1,0 +1,23 @@
+{
+    "model": null,
+    "mtbench": [
+        {
+            "batch_size": 1,
+            "steps": null,
+            "topk": null,
+            "num_draft_tokens": null,
+            "metrics": [
+                {
+                    "latency": 3523.940893471008,
+                    "output_throughput": 42.08810660666667,
+                    "accept_length": 1.6071169287115195,
+                    "accuracy": null,
+                    "num_questions": 80,
+                    "num_valid_predictions": 0,
+                    "categorical_performance": null
+                }
+            ],
+            "num_samples": 80
+        }
+    ]
+}

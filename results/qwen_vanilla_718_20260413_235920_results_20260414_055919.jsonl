@@ -1,0 +1,23 @@
+{
+    "model": null,
+    "livecodebench": [
+        {
+            "batch_size": 1,
+            "steps": null,
+            "topk": null,
+            "num_draft_tokens": null,
+            "metrics": [
+                {
+                    "latency": 3850.3836148880073,
+                    "output_throughput": 103.3598310727217,
+                    "accept_length": 1.9613955368055829,
+                    "accuracy": null,
+                    "num_questions": 200,
+                    "num_valid_predictions": 0,
+                    "categorical_performance": null
+                }
+            ],
+            "num_samples": 200
+        }
+    ]
+}

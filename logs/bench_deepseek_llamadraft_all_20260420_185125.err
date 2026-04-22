@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "<string>", line 3, in <module>
+  File "/rds/user/ou222/hpc-work/diss/sglang/python/sglang/utils.py", line 546, in wait_for_server
+    wait_for_http_ready(
+  File "/rds/user/ou222/hpc-work/diss/sglang/python/sglang/utils.py", line 528, in wait_for_http_ready
+    raise TimeoutError(
+TimeoutError: Endpoint http://localhost:30000/v1/models did not become ready within timeout period
+/rds/user/ou222/hpc-work/diss/sglang/python/sglang/launch_server.py:51: UserWarning: 'python -m sglang.launch_server' is still supported, but 'sglang serve' is the recommended entrypoint.
+  Example: sglang serve --model-path <model> [options]
+  warnings.warn(

@@ -1,0 +1,64 @@
+=== Module list ===
+Currently Loaded Modulefiles:
+ 1) rhel8/slurm   2) singularity/current   3) rhel8/global   4) cuda/12.1  
+
+=== nvcc version ===
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2023 NVIDIA Corporation
+Built on Mon_Apr__3_17:16:06_PDT_2023
+Cuda compilation tools, release 12.1, V12.1.105
+Build cuda_12.1.r12.1/compiler.32688072_0
+============================================================
+ Chain Benchmarks — Qwen/Qwen3-8B
+ Timestamp: 20260412_144834
+============================================================
+
+>>> [1/2] Vanilla EAGLE3 3,1,4 (small chain)
+  Waiting for server (PID 1571051)...
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+  Running benchmarks: vanilla_314
+    >>> mtbench:80
+Running benchmark mtbench with 80 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+    (mtbench:80 failed, continuing)
+    >>> gsm8k:200
+Running benchmark gsm8k with 200 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+    (gsm8k:200 failed, continuing)
+    >>> math500:200
+Running benchmark math500 with 200 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+    (math500:200 failed, continuing)
+    >>> humaneval:164
+Running benchmark humaneval with 164 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+    (humaneval:164 failed, continuing)
+    >>> livecodebench:200
+Running benchmark livecodebench with 200 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+    (livecodebench:200 failed, continuing)
+  Killing server (PID 1571051)...
+
+>>> [2/2] Vanilla EAGLE3 7,1,8 (deep chain)
+  Waiting for server (PID 1592717)...
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+  Running benchmarks: vanilla_718
+    >>> mtbench:80
+Running benchmark mtbench with 80 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+    (mtbench:80 failed, continuing)
+    >>> gsm8k:200
+Running benchmark gsm8k with 200 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+    (gsm8k:200 failed, continuing)
+    >>> math500:200
+Running benchmark math500 with 200 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+    (math500:200 failed, continuing)
+    >>> humaneval:164
+Running benchmark humaneval with 164 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+    (humaneval:164 failed, continuing)
+    >>> livecodebench:200
+Running benchmark livecodebench with 200 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+    (livecodebench:200 failed, continuing)
+  Killing server (PID 1592717)...
+
+============================================================
+ CHAIN BENCHMARKS COMPLETE — qwen
+============================================================

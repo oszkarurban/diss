@@ -1,0 +1,23 @@
+{
+    "model": null,
+    "math500": [
+        {
+            "batch_size": 1,
+            "steps": null,
+            "topk": null,
+            "num_draft_tokens": null,
+            "metrics": [
+                {
+                    "latency": 2618.4834848139435,
+                    "output_throughput": 131.66781535935394,
+                    "accept_length": 4.999709968386554,
+                    "accuracy": 0.405,
+                    "num_questions": 200,
+                    "num_valid_predictions": 200,
+                    "categorical_performance": null
+                }
+            ],
+            "num_samples": 200
+        }
+    ]
+}

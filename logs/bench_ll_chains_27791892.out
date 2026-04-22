@@ -1,0 +1,97 @@
+=== Module list ===
+Currently Loaded Modulefiles:
+ 1) rhel8/slurm   2) singularity/current   3) rhel8/global   4) cuda/12.1  
+
+=== nvcc version ===
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2023 NVIDIA Corporation
+Built on Mon_Apr__3_17:16:06_PDT_2023
+Cuda compilation tools, release 12.1, V12.1.105
+Build cuda_12.1.r12.1/compiler.32688072_0
+=== Module list ===
+Currently Loaded Modulefiles:
+ 1) rhel8/slurm   2) singularity/current   3) rhel8/global   4) cuda/12.1  
+
+=== nvcc version ===
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2023 NVIDIA Corporation
+Built on Mon_Apr__3_17:16:06_PDT_2023
+Cuda compilation tools, release 12.1, V12.1.105
+Build cuda_12.1.r12.1/compiler.32688072_0
+============================================================
+ Chain Benchmarks — meta-llama/Llama-3.1-8B-Instruct
+ Timestamp: 20260415_142938
+============================================================
+
+>>> [1/2] Vanilla EAGLE3 3,1,4 (small chain)
+  Waiting for server (PID 1192761)...
+
+
+        NOTE: Typically, the server runs in a separate terminal.
+        In this notebook, we run the server and notebook code together, so their outputs are combined.
+        To improve clarity, the server logs are displayed in the original black color, while the notebook outputs are highlighted in blue.
+        To reduce the log length, we set the log level to warning for the server, the default log level is info.
+        We are running those notebooks in a CI environment, so the throughput is not representative of the actual performance.
+        
+  Server ready.
+  Running benchmarks: vanilla_314
+    >>> mtbench:80
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+Running benchmark mtbench with 80 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+    (mtbench:80 failed, continuing)
+    >>> gsm8k:200
+Running benchmark gsm8k with 200 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+    (gsm8k:200 failed, continuing)
+    >>> math500:200
+Running benchmark math500 with 200 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+    (math500:200 failed, continuing)
+    >>> humaneval:164
+Running benchmark humaneval with 164 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+    (humaneval:164 failed, continuing)
+    >>> livecodebench:200
+Running benchmark livecodebench with 200 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+    (livecodebench:200 failed, continuing)
+  Killing server (PID 1192761)...
+
+>>> [2/2] Vanilla EAGLE3 7,1,8 (deep chain)
+  Waiting for server (PID 1208785)...
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[2026-04-15 18:31:44] INFO:     127.0.0.1:45472 - "GET /v1/models HTTP/1.1" 200 OK
+[2026-04-15 18:31:44] INFO:     127.0.0.1:45486 - "GET /model_info HTTP/1.1" 200 OK
+
+
+        NOTE: Typically, the server runs in a separate terminal.
+        In this notebook, we run the server and notebook code together, so their outputs are combined.
+        To improve clarity, the server logs are displayed in the original black color, while the notebook outputs are highlighted in blue.
+        To reduce the log length, we set the log level to warning for the server, the default log level is info.
+        We are running those notebooks in a CI environment, so the throughput is not representative of the actual performance.
+        
+  Server ready.
+  Running benchmarks: vanilla_718
+    >>> mtbench:80
+[2026-04-15 18:31:53] INFO:     127.0.0.1:45498 - "POST /generate HTTP/1.1" 200 OK
+[2026-04-15 18:32:05] INFO:     127.0.0.1:47736 - "GET /get_model_info HTTP/1.1" 200 OK
+[2026-04-15 18:32:12] INFO:     127.0.0.1:47744 - "POST /generate HTTP/1.1" 200 OK
+Running benchmark mtbench with 80 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+    (mtbench:80 failed, continuing)
+    >>> gsm8k:200
+Running benchmark gsm8k with 200 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+    (gsm8k:200 failed, continuing)
+    >>> math500:200
+Running benchmark math500 with 200 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+    (math500:200 failed, continuing)
+    >>> humaneval:164
+Running benchmark humaneval with 164 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+    (humaneval:164 failed, continuing)
+    >>> livecodebench:200
+Running benchmark livecodebench with 200 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+    (livecodebench:200 failed, continuing)
+  Killing server (PID 1208785)...
+
+============================================================
+ CHAIN BENCHMARKS COMPLETE — llama
+============================================================

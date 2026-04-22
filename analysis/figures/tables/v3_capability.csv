@@ -1,0 +1,4 @@
+model,dataset,n_steps,frac_at_max,ideal_configs_observed,all_ideal_within_v3_range
+llama,livecodebench,2833,0.0,"['static_3_1_4', 'static_6_10_60', 'static_7_1_8', 'static_7_4_8']",False
+llama,math500,3102,0.0,"['static_6_10_60', 'static_7_1_8', 'static_7_4_8']",False
+llama,mtbench,3397,0.0,"['static_6_10_60', 'static_7_1_8']",False

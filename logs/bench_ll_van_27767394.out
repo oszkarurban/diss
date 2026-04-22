@@ -1,0 +1,46 @@
+=== Module list ===
+Currently Loaded Modulefiles:
+ 1) rhel8/slurm   2) singularity/current   3) rhel8/global   4) cuda/12.1  
+
+=== nvcc version ===
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2023 NVIDIA Corporation
+Built on Mon_Apr__3_17:16:06_PDT_2023
+Cuda compilation tools, release 12.1, V12.1.105
+Build cuda_12.1.r12.1/compiler.32688072_0
+=== Module list ===
+Currently Loaded Modulefiles:
+ 1) rhel8/slurm   2) singularity/current   3) rhel8/global   4) cuda/12.1  
+
+=== nvcc version ===
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2023 NVIDIA Corporation
+Built on Mon_Apr__3_17:16:06_PDT_2023
+Cuda compilation tools, release 12.1, V12.1.105
+Build cuda_12.1.r12.1/compiler.32688072_0
+============================================================
+ Vanilla autoregressive (NO spec) — meta-llama/Llama-3.1-8B-Instruct
+============================================================
+  Waiting for server (PID 701748)...
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[2026-04-14 23:56:48] INFO:     127.0.0.1:42758 - "GET /v1/models HTTP/1.1" 200 OK
+[2026-04-14 23:56:48] INFO:     127.0.0.1:42768 - "GET /v1/models HTTP/1.1" 200 OK
+[2026-04-14 23:56:49] INFO:     127.0.0.1:42770 - "GET /model_info HTTP/1.1" 200 OK
+
+
+        NOTE: Typically, the server runs in a separate terminal.
+        In this notebook, we run the server and notebook code together, so their outputs are combined.
+        To improve clarity, the server logs are displayed in the original black color, while the notebook outputs are highlighted in blue.
+        To reduce the log length, we set the log level to warning for the server, the default log level is info.
+        We are running those notebooks in a CI environment, so the throughput is not representative of the actual performance.
+        
+  Server ready.
+    >>> mtbench:80
+[2026-04-14 23:56:54] INFO:     127.0.0.1:58100 - "GET /model_info HTTP/1.1" 200 OK
+[2026-04-14 23:57:23] INFO:     127.0.0.1:48746 - "GET /get_model_info HTTP/1.1" 200 OK
+[2026-04-14 23:57:23] INFO:     127.0.0.1:48758 - "GET /get_model_info HTTP/1.1" 200 OK
+[2026-04-14 23:57:23] INFO:     127.0.0.1:42786 - "POST /generate HTTP/1.1" 200 OK
+[2026-04-14 23:57:23] INFO:     127.0.0.1:58110 - "POST /generate HTTP/1.1" 200 OK
+[2026-04-14 23:57:23] INFO:     127.0.0.1:48772 - "POST /generate HTTP/1.1" 200 OK

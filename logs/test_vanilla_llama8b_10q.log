@@ -1,0 +1,64 @@
+============================================================
+  SIGNAL COLLECTION TEST
+============================================================
+  Server: localhost:30000
+  Samples: 10 MT-Bench questions (2 turns each)
+
+  Sending 10 requests...
+  0%|          | 0/10 [00:00<?, ?it/s] 10%|█         | 1/10 [00:07<01:06,  7.39s/it] 20%|██        | 2/10 [00:09<00:35,  4.41s/it] 30%|███       | 3/10 [00:11<00:22,  3.15s/it] 40%|████      | 4/10 [00:15<00:21,  3.61s/it] 50%|█████     | 5/10 [00:18<00:16,  3.34s/it] 60%|██████    | 6/10 [00:21<00:12,  3.24s/it] 70%|███████   | 7/10 [00:26<00:11,  3.83s/it] 80%|████████  | 8/10 [00:28<00:06,  3.11s/it] 90%|█████████ | 9/10 [00:31<00:03,  3.02s/it]100%|██████████| 10/10 [00:34<00:00,  3.17s/it]100%|██████████| 10/10 [00:34<00:00,  3.45s/it]
+  Done in 34.6s.
+
+────────────────────────────────────────────────────────────
+  SIGNAL STATISTICS
+────────────────────────────────────────────────────────────
+
+  Extracted 0 signal log entries.
+
+  Signal                           N        Min        Max       Mean        Std
+  ──────────────────────────────────────────────────────────────────────────────
+  draft_entropy                    0       —        —        —        —
+  top1_prob                        0       —        —        —        —
+  top1_minus_top2                  0       —        —        —        —
+  hidden_norm                      0       —        —        —        —
+  hidden_cosine_sim                0       —        —        —        —
+  hidden_projection_score          0       —        —        —        —
+  hidden_entropy                   0       —        —        —        —
+  target_entropy                   0       —        —        —        —
+  target_top1_prob                 0       —        —        —        —
+  target_top1_gap                  0       —        —        —        —
+  target_varentropy                0       —        —        —        —
+  target_hidden_norm               0       —        —        —        —
+  target_hidden_cosine_sim         0       —        —        —        —
+  target_projection_score          0       —        —        —        —
+  target_hidden_entropy            0       —        —        —        —
+  kl_approx_target_draft           0       —        —        —        —
+  target_draft_agree               0       —        —        —        —
+  joint_entropy_gate               0       —        —        —        —
+  draft_oracle_gate                0       —        —        —        —
+  target_oracle_gate               0       —        —        —        —
+  joint_confidence_product         0       —        —        —        —
+  draft_oracle_gate_fixed          0       —        —        —        —
+  target_oracle_gate_fixed         0       —        —        —        —
+  joint_confidence_product_fixed     0       —        —        —        —
+  confidence_agreement             0       —        —        —        —
+  rolling_accept_rate              0       —        —        —        —
+  rolling_accept_length            0       —        —        —        —
+  confidence                       0       —        —        —        —
+  chosen_topk                      0       —        —        —        —
+  chosen_num_steps                 0       —        —        —        —
+  chosen_num_draft_tokens          0       —        —        —        —
+
+────────────────────────────────────────────────────────────
+  SAMPLE LOGS (first 3 turns with data)
+────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────
+  VERIFICATION
+────────────────────────────────────────────────────────────
+  [FAIL] No signal log entries collected at all!
+         Is the server running with --enable-dynamic-speculative-decoding?
+
+  Raw data saved to: signal_data_vanilla_llama8b_10q.json
+
+============================================================
+  OVERALL: FAIL
+============================================================

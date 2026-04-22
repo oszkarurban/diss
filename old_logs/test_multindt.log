@@ -1,0 +1,110 @@
+============================================================
+  SIGNAL COLLECTION TEST
+============================================================
+  Server: localhost:30000
+  Samples: 5 MT-Bench questions (2 turns each)
+
+  Sending 5 requests...
+  0%|          | 0/5 [00:00<?, ?it/s] 20%|██        | 1/5 [00:11<00:46, 11.67s/it] 40%|████      | 2/5 [00:12<00:16,  5.44s/it] 60%|██████    | 3/5 [00:13<00:06,  3.25s/it] 80%|████████  | 4/5 [00:15<00:02,  2.78s/it]/rds/user/ou222/hpc-work/diss/sglang/python/sglang/lang/interpreter.py:410: UserWarning: Error in stream_executor: Traceback (most recent call last):
+  File "/rds/user/ou222/hpc-work/diss/sglang/python/sglang/lang/interpreter.py", line 408, in _thread_worker_func
+    self._execute(expr)
+  File "/rds/user/ou222/hpc-work/diss/sglang/python/sglang/lang/interpreter.py", line 451, in _execute
+    self._execute(x)
+  File "/rds/user/ou222/hpc-work/diss/sglang/python/sglang/lang/interpreter.py", line 446, in _execute
+    self._execute_gen(other)
+  File "/rds/user/ou222/hpc-work/diss/sglang/python/sglang/lang/interpreter.py", line 574, in _execute_gen
+    comp, meta_info = self.backend.generate(
+  File "/rds/user/ou222/hpc-work/diss/sglang/python/sglang/lang/backend/runtime_endpoint.py", line 186, in generate
+    res = http_request(
+  File "/rds/user/ou222/hpc-work/diss/sglang/python/sglang/utils.py", line 192, in http_request
+    resp = urllib.request.urlopen(req, data=data, cafile=verify)
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/urllib/request.py", line 216, in urlopen
+    return opener.open(url, data, timeout)
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/urllib/request.py", line 519, in open
+    response = self._open(req, data)
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/urllib/request.py", line 536, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/urllib/request.py", line 496, in _call_chain
+    result = func(*args)
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/urllib/request.py", line 1377, in http_open
+    return self.do_open(http.client.HTTPConnection, req)
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/urllib/request.py", line 1352, in do_open
+    r = h.getresponse()
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/http/client.py", line 1395, in getresponse
+    response.begin()
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/http/client.py", line 323, in begin
+    version, status, reason = self._read_status()
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/http/client.py", line 292, in _read_status
+    raise RemoteDisconnected("Remote end closed connection without"
+http.client.RemoteDisconnected: Remote end closed connection without response
+
+  warnings.warn(f"Error in stream_executor: {get_exception_traceback()}")
+100%|██████████| 5/5 [00:17<00:00,  2.49s/it]100%|██████████| 5/5 [00:17<00:00,  3.49s/it]
+  Done in 18.6s.
+
+────────────────────────────────────────────────────────────
+  SIGNAL STATISTICS
+────────────────────────────────────────────────────────────
+
+  Extracted 563 signal log entries.
+
+  Signal                           N        Min        Max       Mean        Std
+  ──────────────────────────────────────────────────────────────────────────────
+  draft_entropy                  563     0.0142     4.8333     1.5112     0.6655
+  top1_prob                      563     0.3796     0.9975     0.7435     0.1256
+  top1_minus_top2                563     0.0000     0.9969     0.6423     0.1670
+  hidden_norm                    563    51.0000    88.0000    63.0329     4.6659
+  target_entropy                 563     0.0118     1.2784     0.5725     0.1969
+  entropy_gap                    563    -4.2221     0.5570    -0.9387     0.5978
+  rolling_accept_rate            563     0.3408     0.7533     0.5581     0.0830
+  confidence                     563     0.4618     0.8158     0.6517     0.0581
+  chosen_topk                    563     1.0000     3.0000     1.8899     0.3980
+  chosen_num_steps               563     3.0000     4.0000     3.6821     0.4657
+  chosen_num_draft_tokens        563     4.0000     7.0000     5.1545     0.6441
+
+────────────────────────────────────────────────────────────
+  SAMPLE LOGS (first 3 turns with data)
+────────────────────────────────────────────────────────────
+  Turn 2: 38 steps
+    step 0:  {"confidence": 0.6940391079066202, "draft_entropy": 1.4506406784057617, "top1_prob": 0.7219076156616211, "top1_minus_top2": 0.6348809599876404, "hidden_norm": 60.25, "target_entropy": 0.5943741202354431, "entropy_gap": -0.8562665581703186, "rolling_accept_rate": 0.728, "chosen_topk": 2, "chosen_num_steps": 4, "chosen_num_draft_tokens": 6}
+    step -1: {"confidence": 0.7032855393511513, "draft_entropy": 1.310387134552002, "top1_prob": 0.9072255492210388, "top1_minus_top2": 0.8397661447525024, "hidden_norm": 58.25, "target_entropy": 0.4393807053565979, "entropy_gap": -0.871006429195404, "rolling_accept_rate": 0.5055162187730748, "chosen_topk": 2, "chosen_num_steps": 4, "chosen_num_draft_tokens": 6}
+
+  Turn 3: 83 steps
+    step 0:  {"confidence": 0.6199891279673849, "draft_entropy": 1.0118379592895508, "top1_prob": 0.535490870475769, "top1_minus_top2": 0.38754168152809143, "hidden_norm": 73.5, "target_entropy": 0.4978606700897217, "entropy_gap": -0.5139772891998291, "rolling_accept_rate": 0.569871700021441, "chosen_topk": 2, "chosen_num_steps": 3, "chosen_num_draft_tokens": 5}
+    step -1: {"confidence": 0.695837346187137, "draft_entropy": 1.389423131942749, "top1_prob": 0.8269169330596924, "top1_minus_top2": 0.6862843632698059, "hidden_norm": 68.0, "target_entropy": 0.3021136522293091, "entropy_gap": -1.08730947971344, "rolling_accept_rate": 0.6759387841462661, "chosen_topk": 2, "chosen_num_steps": 4, "chosen_num_draft_tokens": 6}
+
+  Turn 4: 67 steps
+    step 0:  {"confidence": 0.6940391079066202, "draft_entropy": 1.4506406784057617, "top1_prob": 0.7219076156616211, "top1_minus_top2": 0.6348809599876404, "hidden_norm": 60.25, "target_entropy": 0.5943741202354431, "entropy_gap": -0.8562665581703186, "rolling_accept_rate": 0.728, "chosen_topk": 2, "chosen_num_steps": 4, "chosen_num_draft_tokens": 6}
+    step -1: {"confidence": 0.7229326457517141, "draft_entropy": 1.168407678604126, "top1_prob": 0.828410267829895, "top1_minus_top2": 0.8015411496162415, "hidden_norm": 70.5, "target_entropy": 0.4243364930152893, "entropy_gap": -0.7440711855888367, "rolling_accept_rate": 0.5936379287839829, "chosen_topk": 2, "chosen_num_steps": 4, "chosen_num_draft_tokens": 6}
+
+────────────────────────────────────────────────────────────
+  VERIFICATION
+────────────────────────────────────────────────────────────
+  ── Non-zero checks ──
+    [OK]  draft_entropy: non-zero in 563/563 steps (100.0%)
+    [OK]  top1_prob: non-zero in 563/563 steps (100.0%)
+    [OK]  top1_minus_top2: non-zero in 562/563 steps (99.8%)
+    [OK]  hidden_norm: non-zero in 563/563 steps (100.0%)
+    [OK]  target_entropy: non-zero in 563/563 steps (100.0%)
+    [OK]  entropy_gap: non-zero in 563/563 steps (100.0%)
+    [OK]  rolling_accept_rate: non-zero in 563/563 steps (100.0%)
+  ── Variation checks ──
+    [OK]  draft_entropy: std = 0.665510
+    [OK]  top1_prob: std = 0.125605
+    [OK]  top1_minus_top2: std = 0.166974
+    [OK]  hidden_norm: std = 4.665930
+    [OK]  target_entropy: std = 0.196894
+    [OK]  entropy_gap: std = 0.597755
+    [OK]  rolling_accept_rate: std = 0.082984
+  ── Config variation checks ──
+    [OK]  chosen_topk: 3 distinct values: [1, 2, 3]
+    [OK]  chosen_num_steps: 2 distinct values: [3, 4]
+    [OK]  chosen_num_draft_tokens: 4 distinct values: [4, 5, 6, 7]
+  ── Confidence range check ──
+    [OK]  confidence in [0, 1]: min=0.4618 max=0.8158
+
+  Raw data saved to: signal_data_multindt.json
+
+============================================================
+  OVERALL: PASS
+============================================================

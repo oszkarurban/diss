@@ -1,0 +1,38 @@
+=== Module list ===
+Currently Loaded Modulefiles:
+ 1) rhel8/slurm   2) singularity/current   3) rhel8/global   4) cuda/12.1  
+
+=== nvcc version ===
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2023 NVIDIA Corporation
+Built on Mon_Apr__3_17:16:06_PDT_2023
+Cuda compilation tools, release 12.1, V12.1.105
+Build cuda_12.1.r12.1/compiler.32688072_0
+=== Module list ===
+Currently Loaded Modulefiles:
+ 1) rhel8/slurm   2) singularity/current   3) rhel8/global   4) cuda/12.1  
+
+=== nvcc version ===
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2023 NVIDIA Corporation
+Built on Mon_Apr__3_17:16:06_PDT_2023
+Cuda compilation tools, release 12.1, V12.1.105
+Build cuda_12.1.r12.1/compiler.32688072_0
+============================================================
+ Vanilla autoregressive (NO spec) — Qwen/Qwen3-8B
+============================================================
+  Waiting for server (PID 701753)...
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+
+
+        NOTE: Typically, the server runs in a separate terminal.
+        In this notebook, we run the server and notebook code together, so their outputs are combined.
+        To improve clarity, the server logs are displayed in the original black color, while the notebook outputs are highlighted in blue.
+        To reduce the log length, we set the log level to warning for the server, the default log level is info.
+        We are running those notebooks in a CI environment, so the throughput is not representative of the actual performance.
+        
+  Server ready.
+    >>> mtbench:80
+Running benchmark mtbench with 80 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None

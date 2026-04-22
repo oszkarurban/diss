@@ -1,0 +1,76 @@
+============================================================
+  SIGNAL COLLECTION TEST
+============================================================
+  Server: localhost:30000
+  Samples: 5 MT-Bench questions (2 turns each)
+
+  Sending 5 requests...
+  0%|          | 0/5 [00:00<?, ?it/s] 20%|██        | 1/5 [00:07<00:30,  7.71s/it] 40%|████      | 2/5 [00:09<00:11,  3.97s/it] 60%|██████    | 3/5 [00:10<00:05,  2.67s/it] 80%|████████  | 4/5 [00:11<00:02,  2.22s/it]100%|██████████| 5/5 [00:16<00:00,  3.22s/it]100%|██████████| 5/5 [00:16<00:00,  3.34s/it]
+  Done in 17.7s.
+
+────────────────────────────────────────────────────────────
+  SIGNAL STATISTICS
+────────────────────────────────────────────────────────────
+
+  Extracted 919 signal log entries.
+
+  Signal                           N        Min        Max       Mean        Std
+  ──────────────────────────────────────────────────────────────────────────────
+  draft_entropy                  919     0.0001     5.8202     1.5496     0.8775
+  top1_prob                      919     0.0894     1.0000     0.7687     0.1655
+  top1_minus_top2                919     0.0000     1.0000     0.6804     0.2135
+  hidden_norm                    919    38.5000   101.0000    62.6295     6.6155
+  target_entropy                 919     0.0000     1.8515     0.5339     0.2637
+  entropy_gap                    919    -5.6364     1.0847    -1.0157     0.7882
+  rolling_accept_rate            919     0.0861     1.0000     0.5701     0.0966
+  confidence                     919     0.3310     0.8758     0.6522     0.0842
+  chosen_topk                    919     1.0000     3.0000     1.9282     0.5552
+  chosen_num_steps               919     2.0000     5.0000     3.6333     0.4975
+  chosen_num_draft_tokens        919     3.0000     7.0000     5.1556     0.7908
+
+────────────────────────────────────────────────────────────
+  SAMPLE LOGS (first 3 turns with data)
+────────────────────────────────────────────────────────────
+  Turn 0: 206 steps
+    step 0:  {"confidence": 0.6856560374603522, "draft_entropy": 2.204035520553589, "top1_prob": 0.9410484433174133, "top1_minus_top2": 0.9085394144058228, "hidden_norm": 59.0, "target_entropy": 0.6484229564666748, "entropy_gap": -1.555612564086914, "rolling_accept_rate": 0.64872, "chosen_topk": 2, "chosen_num_steps": 4, "chosen_num_draft_tokens": 5}
+    step -1: {"confidence": 0.7199671283442095, "draft_entropy": 0.3235931694507599, "top1_prob": 0.993934690952301, "top1_minus_top2": 0.9880245327949524, "hidden_norm": 56.5, "target_entropy": 0.6317201852798462, "entropy_gap": 0.3081270158290863, "rolling_accept_rate": 0.47437933199166327, "chosen_topk": 2, "chosen_num_steps": 4, "chosen_num_draft_tokens": 6}
+
+  Turn 1: 156 steps
+    step 0:  {"confidence": 0.8011596943768955, "draft_entropy": 0.660182535648346, "top1_prob": 0.6897396445274353, "top1_minus_top2": 0.6629955172538757, "hidden_norm": 69.5, "target_entropy": 0.29505258798599243, "entropy_gap": -0.3651299476623535, "rolling_accept_rate": 1.0, "chosen_topk": 3, "chosen_num_steps": 4, "chosen_num_draft_tokens": 6}
+    step -1: {"confidence": 0.8321143953302969, "draft_entropy": 0.03849959373474121, "top1_prob": 0.999976634979248, "top1_minus_top2": 0.9999599456787109, "hidden_norm": 53.0, "target_entropy": 0.07051096111536026, "entropy_gap": 0.03201136738061905, "rolling_accept_rate": 0.6675741116360633, "chosen_topk": 3, "chosen_num_steps": 4, "chosen_num_draft_tokens": 7}
+
+  Turn 2: 37 steps
+    step 0:  {"confidence": 0.6856560374603522, "draft_entropy": 2.204035520553589, "top1_prob": 0.9410484433174133, "top1_minus_top2": 0.9085394144058228, "hidden_norm": 59.0, "target_entropy": 0.6484229564666748, "entropy_gap": -1.555612564086914, "rolling_accept_rate": 0.64872, "chosen_topk": 2, "chosen_num_steps": 4, "chosen_num_draft_tokens": 5}
+    step -1: {"confidence": 0.6193984712079607, "draft_entropy": 1.4675697088241577, "top1_prob": 0.7036582231521606, "top1_minus_top2": 0.6623517870903015, "hidden_norm": 65.0, "target_entropy": 0.7505092024803162, "entropy_gap": -0.7170605063438416, "rolling_accept_rate": 0.5018588123157439, "chosen_topk": 2, "chosen_num_steps": 3, "chosen_num_draft_tokens": 5}
+
+────────────────────────────────────────────────────────────
+  VERIFICATION
+────────────────────────────────────────────────────────────
+  ── Non-zero checks ──
+    [OK]  draft_entropy: non-zero in 919/919 steps (100.0%)
+    [OK]  top1_prob: non-zero in 919/919 steps (100.0%)
+    [OK]  top1_minus_top2: non-zero in 915/919 steps (99.6%)
+    [OK]  hidden_norm: non-zero in 919/919 steps (100.0%)
+    [OK]  target_entropy: non-zero in 919/919 steps (100.0%)
+    [OK]  entropy_gap: non-zero in 919/919 steps (100.0%)
+    [OK]  rolling_accept_rate: non-zero in 919/919 steps (100.0%)
+  ── Variation checks ──
+    [OK]  draft_entropy: std = 0.877517
+    [OK]  top1_prob: std = 0.165534
+    [OK]  top1_minus_top2: std = 0.213547
+    [OK]  hidden_norm: std = 6.615476
+    [OK]  target_entropy: std = 0.263710
+    [OK]  entropy_gap: std = 0.788161
+    [OK]  rolling_accept_rate: std = 0.096567
+  ── Config variation checks ──
+    [OK]  chosen_topk: 3 distinct values: [1, 2, 3]
+    [OK]  chosen_num_steps: 4 distinct values: [2, 3, 4, 5]
+    [OK]  chosen_num_draft_tokens: 5 distinct values: [3, 4, 5, 6, 7]
+  ── Confidence range check ──
+    [OK]  confidence in [0, 1]: min=0.3310 max=0.8758
+
+  Raw data saved to: signal_data_no_graph.json
+
+============================================================
+  OVERALL: PASS
+============================================================

@@ -1,0 +1,7 @@
+model,dataset,cheap_threshold,premium_threshold,distinct_best_configs
+llama,livecodebench,0.9956377148628235,,['static_3_1_4']
+llama,math500,0.9962197542190552,,['static_3_1_4']
+llama,mtbench,0.9855886697769165,,['static_3_1_4']
+qwen,livecodebench,0.9662292003631592,,['static_3_1_4']
+qwen,math500,0.9805088043212891,,['static_3_1_4']
+qwen,mtbench,0.9995957612991333,,['static_3_1_4']

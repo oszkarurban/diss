@@ -1,0 +1,23 @@
+{
+    "model": null,
+    "gsm8k": [
+        {
+            "batch_size": 1,
+            "steps": null,
+            "topk": null,
+            "num_draft_tokens": null,
+            "metrics": [
+                {
+                    "latency": 516.8021766550373,
+                    "output_throughput": 51.9637904271552,
+                    "accept_length": 2.0071001494768312,
+                    "accuracy": 0.765,
+                    "num_questions": 200,
+                    "num_valid_predictions": 200,
+                    "categorical_performance": null
+                }
+            ],
+            "num_samples": 200
+        }
+    ]
+}

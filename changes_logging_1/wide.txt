@@ -1,0 +1,819 @@
+Loading tokenizer: meta-llama/Llama-3.1-8B-Instruct...
+
+================================================================
+  Config: wide  (topk=3, steps=5, dtn=6)
+  Prompt: Compose an engaging travel blog post about a recent trip to ...
+================================================================
+
+  Sending request to localhost:30000...
+
+[1m-- Generated text (first 200 chars) --[0m
+  **Island of Aloha: Unveiling the Hidden Gems of Hawaii**
+
+As I stepped off the plane in Honolulu, the warm tropical air enveloped me, and the sweet scent of plumeria filled my senses. I was finally in
+
+[1m-- Raw meta_info --[0m
+  spec_verify_ct: 60
+  spec_accept_rate: 0.4667
+  spec_accept_length: 3.3333
+  spec_accept_token_num: 140
+  spec_draft_token_num: [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6]
+  spec_accept_histogram: [10, 10, 16, 9, 4, 11]
+
+  spec_topk: (60 steps) [3, 3, 3, ...]
+  spec_num_steps: (60 steps) [5, 5, 5, ...]
+  spec_draft_token_num: (60 steps) [6, 6, 6, ...]
+  spec_threshold_single: (60 steps) [1.0, 1.0, 1.0, ...]
+  spec_draft_tokens: (60 steps) [[334, 51102, 3957, 32, 287, 1974], [315, 279, 48691, 53718, 44875, 25], [95554, 4317, 447, 689, 4298, 25], ...]
+  spec_accepted_tokens_log: (60 steps) [[334, 3957, 1974], [315], [95554, 4317], ...]
+  spec_rejected_tokens_log: (60 steps) [[51102, 32, 287], [279, 48691, 53718, 44875, 25], [447, 689, 4298, 25], ...]
+  spec_accept_index_log: (60 steps) [[0, 2, 5], [0], [0, 1], ...]
+  spec_retrive_next_token: (60 steps) [[1, 4, 5, -1, -1, -1], [1, 4, -1, -1, 5, -1], [1, 2, -1, -1, 5, -1], ...]
+  spec_retrive_next_sibling: (60 steps) [[-1, 2, 3, -1, -1, -1], [-1, 2, 3, -1, -1, -1], [-1, -1, 3, 4, -1, -1], ...]
+
+[1m-- Checks --[0m
+  [[32mPASS[0m] per-step fields present
+  [[32mPASS[0m] acc+rej==draft for all steps
+  [[32mPASS[0m] len(spec_topk)==num_verify_steps
+  [[32mPASS[0m] len(spec_num_steps)==num_verify_steps
+  [[32mPASS[0m] len(spec_draft_token_num)==num_verify_steps
+  [[32mPASS[0m] len(spec_threshold_single)==num_verify_steps
+  [[32mPASS[0m] len(retrive_next_token)==num_verify_steps
+  [[32mPASS[0m] len(retrive_next_sibling)==num_verify_steps
+  [[32mPASS[0m] tree pointer length == dtn per step
+  [[32mPASS[0m] server config matches --config (ok)
+
+[1m-- Tree visualisation (60 verify steps) --[0m
+
+  [1mStep  0[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[########........][0m  3/6 accepted
+      [32m[ACC] [ 0]     334  '**'[0m
+        |-- [90m[rej] [ 1]   51102  'Discover'[0m
+        |     +-- [90m[rej] [ 4]     287  'ing'[0m
+        |-- [32m[ACC] [ 2]    3957  'Is'[0m
+        |     +-- [32m[ACC] [ 5]    1974  'land'[0m
+        +-- [90m[rej] [ 3]      32  'A'[0m
+
+      [32maccepted >[0m  '**Island'
+      [32mindices  >[0m  [0, 2, 5]
+      [90mrejected >  'DiscoverAing'[0m
+
+  [1mStep  1[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[###.............][0m  1/6 accepted
+      [32m[ACC] [ 0]     315  ' of'[0m
+        |-- [90m[rej] [ 1]     279  ' the'[0m
+        |     +-- [90m[rej] [ 4]   44875  ' Gods'[0m
+        |           +-- [90m[rej] [ 5]      25  ':'[0m
+        |-- [90m[rej] [ 2]   48691  ' Paradise'[0m
+        +-- [90m[rej] [ 3]   53718  ' Dreams'[0m
+
+      [32maccepted >[0m  ' of'
+      [32mindices  >[0m  [0]
+      [90mrejected >  ' the Paradise Dreams Gods:'[0m
+
+  [1mStep  2[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[#####...........][0m  2/6 accepted
+      [32m[ACC] [ 0]   95554  ' Alo'[0m
+        +-- [32m[ACC] [ 1]    4317  'ha'[0m
+              |-- [90m[rej] [ 2]     447  'qu'[0m
+              |-- [90m[rej] [ 3]     689  'ia'[0m
+              +-- [90m[rej] [ 4]    4298  'ria'[0m
+                    +-- [90m[rej] [ 5]      25  ':'[0m
+
+      [32maccepted >[0m  ' Aloha'
+      [32mindices  >[0m  [0, 1]
+      [90mrejected >  'quiaria:'[0m
+
+  [1mStep  3[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[###.............][0m  1/6 accepted
+      [32m[ACC] [ 0]      25  ':'[0m
+        |-- [90m[rej] [ 1]   34039  ' Discover'[0m
+        |     +-- [90m[rej] [ 4]     287  'ing'[0m
+        |           +-- [90m[rej] [ 5]     279  ' the'[0m
+        |-- [90m[rej] [ 2]    3092  ' My'[0m
+        +-- [90m[rej] [ 3]     362  ' A'[0m
+
+      [32maccepted >[0m  ':'
+      [32mindices  >[0m  [0]
+      [90mrejected >  ' Discover My Aing the'[0m
+
+  [1mStep  4[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[###########.....][0m  4/6 accepted
+      [32m[ACC] [ 0]    1252  ' Un'[0m
+        |-- [32m[ACC] [ 1]     588  've'[0m
+        |     +-- [32m[ACC] [ 3]    8138  'iling'[0m
+        |           +-- [32m[ACC] [ 5]     279  ' the'[0m
+        +-- [90m[rej] [ 2]   93013  'covering'[0m
+              +-- [90m[rej] [ 4]     279  ' the'[0m
+
+      [32maccepted >[0m  ' Unveiling the'
+      [32mindices  >[0m  [0, 1, 3, 5]
+      [90mrejected >  'covering the'[0m
+
+  [1mStep  5[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[###.............][0m  1/6 accepted
+      [32m[ACC] [ 0]   35342  ' Hidden'[0m
+        +-- [90m[rej] [ 1]   32245  ' Gem'[0m
+              +-- [90m[rej] [ 2]     315  ' of'[0m
+                    |-- [90m[rej] [ 3]     279  ' the'[0m
+                    +-- [90m[rej] [ 4]    5751  ' Our'[0m
+                          +-- [90m[rej] [ 5]   16867  ' Pacific'[0m
+
+      [32maccepted >[0m  ' Hidden'
+      [32mindices  >[0m  [0]
+      [90mrejected >  ' Gem of the Our Pacific'[0m
+
+  [1mStep  6[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[########........][0m  3/6 accepted
+      [32m[ACC] [ 0]   82172  ' Gems'[0m
+        +-- [32m[ACC] [ 1]     315  ' of'[0m
+              |-- [90m[rej] [ 2]    3092  ' My'[0m
+              |-- [90m[rej] [ 3]    5751  ' Our'[0m
+              +-- [32m[ACC] [ 4]   28621  ' Hawaii'[0m
+                    +-- [90m[rej] [ 5]     596  "'s"[0m
+
+      [32maccepted >[0m  ' Gems of Hawaii'
+      [32mindices  >[0m  [0, 1, 4]
+      [90mrejected >  " My Our's"[0m
+
+  [1mStep  7[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[################][0m  6/6 accepted
+      [32m[ACC] [ 0]   57277  '**\n\n'[0m
+        +-- [32m[ACC] [ 1]    2170  'As'[0m
+              +-- [32m[ACC] [ 2]     358  ' I'[0m
+                    +-- [32m[ACC] [ 3]   25319  ' stepped'[0m
+                          +-- [32m[ACC] [ 4]    1022  ' off'[0m
+                                +-- [32m[ACC] [ 5]     279  ' the'[0m
+
+      [32maccepted >[0m  '**\n\nAs I stepped off the'
+      [32mindices  >[0m  [0, 1, 2, 3, 4, 5]
+
+  [1mStep  8[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[#####...........][0m  2/6 accepted
+      [32m[ACC] [ 0]   11277  ' plane'[0m
+        +-- [32m[ACC] [ 1]     304  ' in'[0m
+              |-- [90m[rej] [ 2]     507  ' O'[0m
+              |     +-- [90m[rej] [ 5]   27793  'ahu'[0m
+              |-- [90m[rej] [ 3]   28621  ' Hawaii'[0m
+              +-- [90m[rej] [ 4]   50852  ' paradise'[0m
+
+      [32maccepted >[0m  ' plane in'
+      [32mindices  >[0m  [0, 1]
+      [90mrejected >  ' O Hawaii paradiseahu'[0m
+
+  [1mStep  9[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[################][0m  6/6 accepted
+      [32m[ACC] [ 0]   82640  ' Honolulu'[0m
+        +-- [32m[ACC] [ 1]      11  ','[0m
+              +-- [32m[ACC] [ 2]     279  ' the'[0m
+                    +-- [32m[ACC] [ 3]    8369  ' warm'[0m
+                          +-- [32m[ACC] [ 4]   35148  ' tropical'[0m
+                                +-- [32m[ACC] [ 5]    3805  ' air'[0m
+
+      [32maccepted >[0m  ' Honolulu, the warm tropical air'
+      [32mindices  >[0m  [0, 1, 2, 3, 4, 5]
+
+  [1mStep 10[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[################][0m  6/6 accepted
+      [32m[ACC] [ 0]   54285  ' envelop'[0m
+        +-- [32m[ACC] [ 1]     291  'ed'[0m
+              +-- [32m[ACC] [ 2]     757  ' me'[0m
+                    +-- [32m[ACC] [ 3]      11  ','[0m
+                          +-- [32m[ACC] [ 4]     323  ' and'[0m
+                                +-- [32m[ACC] [ 5]     279  ' the'[0m
+
+      [32maccepted >[0m  ' enveloped me, and the'
+      [32mindices  >[0m  [0, 1, 2, 3, 4, 5]
+
+  [1mStep 11[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[################][0m  6/6 accepted
+      [32m[ACC] [ 0]   10437  ' sweet'[0m
+        +-- [32m[ACC] [ 1]   41466  ' scent'[0m
+              +-- [32m[ACC] [ 2]     315  ' of'[0m
+                    +-- [32m[ACC] [ 3]     628  ' pl'[0m
+                          +-- [32m[ACC] [ 4]    3471  'umer'[0m
+                                +-- [32m[ACC] [ 5]     689  'ia'[0m
+
+      [32maccepted >[0m  ' sweet scent of plumeria'
+      [32mindices  >[0m  [0, 1, 2, 3, 4, 5]
+
+  [1mStep 12[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[###########.....][0m  4/6 accepted
+      [32m[ACC] [ 0]   10409  ' filled'[0m
+        +-- [32m[ACC] [ 1]     856  ' my'[0m
+              |-- [90m[rej] [ 2]   45274  ' lungs'[0m
+              |     +-- [90m[rej] [ 5]      13  '.'[0m
+              +-- [32m[ACC] [ 3]   38207  ' senses'[0m
+                    +-- [32m[ACC] [ 4]      13  '.'[0m
+
+      [32maccepted >[0m  ' filled my senses.'
+      [32mindices  >[0m  [0, 1, 3, 4]
+      [90mrejected >  ' lungs.'[0m
+
+  [1mStep 13[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[#####...........][0m  2/6 accepted
+      [32m[ACC] [ 0]     358  ' I'[0m
+        |-- [90m[rej] [ 1]    1047  ' had'[0m
+        |-- [32m[ACC] [ 2]     574  ' was'[0m
+        |     +-- [90m[rej] [ 4]     922  ' about'[0m
+        |           +-- [90m[rej] [ 5]     311  ' to'[0m
+        +-- [90m[rej] [ 3]    7020  ' knew'[0m
+
+      [32maccepted >[0m  ' I was'
+      [32mindices  >[0m  [0, 2]
+      [90mrejected >  ' had knew about to'[0m
+
+  [1mStep 14[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[###.............][0m  1/6 accepted
+      [32m[ACC] [ 0]    5616  ' finally'[0m
+        +-- [90m[rej] [ 1]    1618  ' here'[0m
+              +-- [90m[rej] [ 2]      11  ','[0m
+                    +-- [90m[rej] [ 3]    5644  ' ready'[0m
+                          +-- [90m[rej] [ 4]     311  ' to'[0m
+                                +-- [90m[rej] [ 5]   26612  ' immer'[0m
+
+      [32maccepted >[0m  ' finally'
+      [32mindices  >[0m  [0]
+      [90mrejected >  ' here, ready to immer'[0m
+
+  [1mStep 15[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[########........][0m  3/6 accepted
+      [32m[ACC] [ 0]     304  ' in'[0m
+        +-- [32m[ACC] [ 1]   28621  ' Hawaii'[0m
+              +-- [32m[ACC] [ 2]      11  ','[0m
+                    |-- [90m[rej] [ 3]     264  ' a'[0m
+                    |     +-- [90m[rej] [ 5]    9284  ' destination'[0m
+                    +-- [90m[rej] [ 4]     323  ' and'[0m
+
+      [32maccepted >[0m  ' in Hawaii,'
+      [32mindices  >[0m  [0, 1, 2]
+      [90mrejected >  ' a and destination'[0m
+
+  [1mStep 16[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[#####...........][0m  2/6 accepted
+      [32m[ACC] [ 0]     279  ' the'[0m
+        |-- [90m[rej] [ 1]   13218  ' island'[0m
+        |     +-- [90m[rej] [ 4]   50852  ' paradise'[0m
+        |-- [90m[rej] [ 2]   50852  ' paradise'[0m
+        |     +-- [90m[rej] [ 5]     315  ' of'[0m
+        +-- [32m[ACC] [ 3]   17139  ' ultimate'[0m
+
+      [32maccepted >[0m  ' the ultimate'
+      [32mindices  >[0m  [0, 3]
+      [90mrejected >  ' island paradise paradise of'[0m
+
+  [1mStep 17[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[###.............][0m  1/6 accepted
+      [32m[ACC] [ 0]   50852  ' paradise'[0m
+        |-- [90m[rej] [ 1]     315  ' of'[0m
+        |     +-- [90m[rej] [ 3]    5933  ' natural'[0m
+        |           +-- [90m[rej] [ 4]   13444  ' beauty'[0m
+        |                 +-- [90m[rej] [ 5]      11  ','[0m
+        +-- [90m[rej] [ 2]     369  ' for'[0m
+
+      [32maccepted >[0m  ' paradise'
+      [32mindices  >[0m  [0]
+      [90mrejected >  ' of for natural beauty,'[0m
+
+  [1mStep 18[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[################][0m  6/6 accepted
+      [32m[ACC] [ 0]     389  ' on'[0m
+        +-- [32m[ACC] [ 1]    9578  ' earth'[0m
+              +-- [32m[ACC] [ 2]      13  '.'[0m
+                    +-- [32m[ACC] [ 3]    3092  ' My'[0m
+                          +-- [32m[ACC] [ 4]    3293  ' recent'[0m
+                                +-- [32m[ACC] [ 5]    8577  ' trip'[0m
+
+      [32maccepted >[0m  ' on earth. My recent trip'
+      [32mindices  >[0m  [0, 1, 2, 3, 4, 5]
+
+  [1mStep 19[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[#####...........][0m  2/6 accepted
+      [32m[ACC] [ 0]     311  ' to'[0m
+        |-- [32m[ACC] [ 1]     279  ' the'[0m
+        |     +-- [90m[rej] [ 3]   30100  ' islands'[0m
+        |           +-- [90m[rej] [ 4]     315  ' of'[0m
+        |                 +-- [90m[rej] [ 5]     507  ' O'[0m
+        +-- [90m[rej] [ 2]     420  ' this'[0m
+
+      [32maccepted >[0m  ' to the'
+      [32mindices  >[0m  [0, 1]
+      [90mrejected >  ' this islands of O'[0m
+
+  [1mStep 20[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[########........][0m  3/6 accepted
+      [32m[ACC] [ 0]   95554  ' Alo'[0m
+        +-- [32m[ACC] [ 1]    4317  'ha'[0m
+              +-- [32m[ACC] [ 2]    3314  ' State'[0m
+                    |-- [90m[rej] [ 3]     315  ' of'[0m
+                    |     +-- [90m[rej] [ 5]     507  ' O'[0m
+                    +-- [90m[rej] [ 4]     706  ' has'[0m
+
+      [32maccepted >[0m  ' Aloha State'
+      [32mindices  >[0m  [0, 1, 2]
+      [90mrejected >  ' of has O'[0m
+
+  [1mStep 21[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[#############...][0m  5/6 accepted
+      [32m[ACC] [ 0]     574  ' was'[0m
+        +-- [32m[ACC] [ 1]     264  ' a'[0m
+              |-- [90m[rej] [ 2]   49069  ' sensory'[0m
+              +-- [32m[ACC] [ 3]   11879  ' journey'[0m
+                    +-- [32m[ACC] [ 4]     315  ' of'[0m
+                          +-- [32m[ACC] [ 5]   18841  ' discovery'[0m
+
+      [32maccepted >[0m  ' was a journey of discovery'
+      [32mindices  >[0m  [0, 1, 3, 4, 5]
+      [90mrejected >  ' sensory'[0m
+
+  [1mStep 22[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[###.............][0m  1/6 accepted
+      [32m[ACC] [ 0]      11  ','[0m
+        |-- [90m[rej] [ 1]     264  ' a'[0m
+        |     +-- [90m[rej] [ 4]   37608  ' fusion'[0m
+        |           +-- [90m[rej] [ 5]     315  ' of'[0m
+        |-- [90m[rej] [ 2]     315  ' of'[0m
+        +-- [90m[rej] [ 3]     539  ' not'[0m
+
+      [32maccepted >[0m  ','
+      [32mindices  >[0m  [0]
+      [90mrejected >  ' a of not fusion of'[0m
+
+  [1mStep 23[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[################][0m  6/6 accepted
+      [32m[ACC] [ 0]    4998  ' imm'[0m
+        +-- [32m[ACC] [ 1]     388  'ers'[0m
+              +-- [32m[ACC] [ 2]     287  'ing'[0m
+                    +-- [32m[ACC] [ 3]    7182  ' myself'[0m
+                          +-- [32m[ACC] [ 4]     304  ' in'[0m
+                                +-- [32m[ACC] [ 5]     279  ' the'[0m
+
+      [32maccepted >[0m  ' immersing myself in the'
+      [32mindices  >[0m  [0, 1, 2, 3, 4, 5]
+
+  [1mStep 24[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[###########.....][0m  4/6 accepted
+      [32m[ACC] [ 0]    9257  ' rich'[0m
+        |-- [32m[ACC] [ 1]    7829  ' culture'[0m
+        |     +-- [32m[ACC] [ 3]      11  ','[0m
+        |           +-- [32m[ACC] [ 5]   57192  ' breathtaking'[0m
+        +-- [90m[rej] [ 2]   13042  ' cultural'[0m
+              +-- [90m[rej] [ 4]   28948  ' heritage'[0m
+
+      [32maccepted >[0m  ' rich culture, breathtaking'
+      [32mindices  >[0m  [0, 1, 3, 5]
+      [90mrejected >  ' cultural heritage'[0m
+
+  [1mStep 25[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[#############...][0m  5/6 accepted
+      [32m[ACC] [ 0]   55890  ' landscapes'[0m
+        +-- [32m[ACC] [ 1]      11  ','[0m
+              +-- [32m[ACC] [ 2]     323  ' and'[0m
+                    |-- [32m[ACC] [ 3]   61098  ' unforgettable'[0m
+                    |     +-- [32m[ACC] [ 5]   11704  ' experiences'[0m
+                    +-- [90m[rej] [ 4]    8369  ' warm'[0m
+
+      [32maccepted >[0m  ' landscapes, and unforgettable experiences'
+      [32mindices  >[0m  [0, 1, 2, 3, 5]
+      [90mrejected >  ' warm'[0m
+
+  [1mStep 26[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[###.............][0m  1/6 accepted
+      [32m[ACC] [ 0]     430  ' that'[0m
+        |-- [90m[rej] [ 1]    1903  ' made'[0m
+        |     +-- [90m[rej] [ 4]     420  ' this'[0m
+        |-- [90m[rej] [ 2]    2163  ' left'[0m
+        |     +-- [90m[rej] [ 5]     459  ' an'[0m
+        +-- [90m[rej] [ 3]     420  ' this'[0m
+
+      [32maccepted >[0m  ' that'
+      [32mindices  >[0m  [0]
+      [90mrejected >  ' made left this this an'[0m
+
+  [1mStep 27[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[#####...........][0m  2/6 accepted
+      [32m[ACC] [ 0]    1304  ' make'[0m
+        |-- [90m[rej] [ 1]     420  ' this'[0m
+        |     +-- [90m[rej] [ 3]   13218  ' island'[0m
+        |           |-- [90m[rej] [ 4]   50852  ' paradise'[0m
+        |           +-- [90m[rej] [ 5]     779  ' so'[0m
+        +-- [32m[ACC] [ 2]   28621  ' Hawaii'[0m
+
+      [32maccepted >[0m  ' make Hawaii'
+      [32mindices  >[0m  [0, 2]
+      [90mrejected >  ' this island paradise so'[0m
+
+  [1mStep 28[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[#############...][0m  5/6 accepted
+      [32m[ACC] [ 0]     264  ' a'[0m
+        |-- [32m[ACC] [ 1]     837  ' true'[0m
+        |     +-- [32m[ACC] [ 3]   19269  ' gem'[0m
+        |           +-- [32m[ACC] [ 4]     382  '.\n\n'[0m
+        |                 +-- [32m[ACC] [ 5]     334  '**'[0m
+        +-- [90m[rej] [ 2]    9615  ' truly'[0m
+
+      [32maccepted >[0m  ' a true gem.\n\n**'
+      [32mindices  >[0m  [0, 1, 3, 4, 5]
+      [90mrejected >  ' truly'[0m
+
+  [1mStep 29[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[###########.....][0m  4/6 accepted
+      [32m[ACC] [ 0]      34  'C'[0m
+        +-- [32m[ACC] [ 1]   44547  'ultural'[0m
+              +-- [32m[ACC] [ 2]    1398  ' Ex'[0m
+                    +-- [32m[ACC] [ 3]   69597  'periences'[0m
+                          +-- [90m[rej] [ 4]      25  ':'[0m
+                                +-- [90m[rej] [ 5]   57277  '**\n\n'[0m
+
+      [32maccepted >[0m  'Cultural Experiences'
+      [32mindices  >[0m  [0, 1, 2, 3]
+      [90mrejected >  ':**\n\n'[0m
+
+  [1mStep 30[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[###.............][0m  1/6 accepted
+      [32m[ACC] [ 0]   57277  '**\n\n'[0m
+        |-- [90m[rej] [ 1]    4054  'One'[0m
+        |     +-- [90m[rej] [ 3]     315  ' of'[0m
+        |           +-- [90m[rej] [ 4]     279  ' the'[0m
+        |                 +-- [90m[rej] [ 5]   22020  ' highlights'[0m
+        +-- [90m[rej] [ 2]    5159  'My'[0m
+
+      [32maccepted >[0m  '**\n\n'
+      [32mindices  >[0m  [0]
+      [90mrejected >  'OneMy of the highlights'[0m
+
+  [1mStep 31[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[########........][0m  3/6 accepted
+      [32m[ACC] [ 0]      39  'H'[0m
+        +-- [32m[ACC] [ 1]   72054  'awaii'[0m
+              +-- [32m[ACC] [ 2]     374  ' is'[0m
+                    +-- [90m[rej] [ 3]     810  ' more'[0m
+                          +-- [90m[rej] [ 4]    1109  ' than'[0m
+                                +-- [90m[rej] [ 5]    1120  ' just'[0m
+
+      [32maccepted >[0m  'Hawaii is'
+      [32mindices  >[0m  [0, 1, 2]
+      [90mrejected >  ' more than just'[0m
+
+  [1mStep 32[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[################][0m  6/6 accepted
+      [32m[ACC] [ 0]     264  ' a'[0m
+        +-- [32m[ACC] [ 1]   50684  ' melting'[0m
+              +-- [32m[ACC] [ 2]    3419  ' pot'[0m
+                    +-- [32m[ACC] [ 3]     315  ' of'[0m
+                          +-- [32m[ACC] [ 4]   27833  ' cultures'[0m
+                                +-- [32m[ACC] [ 5]      11  ','[0m
+
+      [32maccepted >[0m  ' a melting pot of cultures,'
+      [32mindices  >[0m  [0, 1, 2, 3, 4, 5]
+
+  [1mStep 33[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[###########.....][0m  4/6 accepted
+      [32m[ACC] [ 0]     449  ' with'[0m
+        |-- [90m[rej] [ 1]   34453  ' influences'[0m
+        |     +-- [90m[rej] [ 3]     505  ' from'[0m
+        +-- [32m[ACC] [ 2]     264  ' a'[0m
+              +-- [32m[ACC] [ 4]    5016  ' unique'[0m
+                    +-- [32m[ACC] [ 5]   20955  ' blend'[0m
+
+      [32maccepted >[0m  ' with a unique blend'
+      [32mindices  >[0m  [0, 2, 4, 5]
+      [90mrejected >  ' influences from'[0m
+
+  [1mStep 34[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[################][0m  6/6 accepted
+      [32m[ACC] [ 0]     315  ' of'[0m
+        +-- [32m[ACC] [ 1]   17118  ' Native'[0m
+              +-- [32m[ACC] [ 2]   59103  ' Hawaiian'[0m
+                    +-- [32m[ACC] [ 3]      11  ','[0m
+                          +-- [32m[ACC] [ 4]   14875  ' Asian'[0m
+                                +-- [32m[ACC] [ 5]      11  ','[0m
+
+      [32maccepted >[0m  ' of Native Hawaiian, Asian,'
+      [32mindices  >[0m  [0, 1, 2, 3, 4, 5]
+
+  [1mStep 35[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[###########.....][0m  4/6 accepted
+      [32m[ACC] [ 0]     323  ' and'[0m
+        |-- [32m[ACC] [ 1]    3778  ' American'[0m
+        |     +-- [32m[ACC] [ 3]   34453  ' influences'[0m
+        |           +-- [32m[ACC] [ 4]      13  '.'[0m
+        |                 +-- [90m[rej] [ 5]     358  ' I'[0m
+        +-- [90m[rej] [ 2]    7665  ' European'[0m
+
+      [32maccepted >[0m  ' and American influences.'
+      [32mindices  >[0m  [0, 1, 3, 4]
+      [90mrejected >  ' European I'[0m
+
+  [1mStep 36[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[#####...........][0m  2/6 accepted
+      [32m[ACC] [ 0]    2057  ' To'[0m
+        |-- [90m[rej] [ 1]    3217  ' experience'[0m
+        |     |-- [90m[rej] [ 4]     420  ' this'[0m
+        |     +-- [90m[rej] [ 5]     279  ' the'[0m
+        |-- [32m[ACC] [ 2]    9615  ' truly'[0m
+        +-- [90m[rej] [ 3]    7373  ' fully'[0m
+
+      [32maccepted >[0m  ' To truly'
+      [32mindices  >[0m  [0, 2]
+      [90mrejected >  ' experience fully this the'[0m
+
+  [1mStep 37[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[###########.....][0m  4/6 accepted
+      [32m[ACC] [ 0]    3217  ' experience'[0m
+        +-- [32m[ACC] [ 1]     279  ' the'[0m
+              |-- [32m[ACC] [ 2]   13218  ' island'[0m
+              |     +-- [32m[ACC] [ 5]     596  "'s"[0m
+              |-- [90m[rej] [ 3]   28591  ' essence'[0m
+              +-- [90m[rej] [ 4]   30100  ' islands'[0m
+
+      [32maccepted >[0m  " experience the island's"
+      [32mindices  >[0m  [0, 1, 2, 5]
+      [90mrejected >  ' essence islands'[0m
+
+  [1mStep 38[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[########........][0m  3/6 accepted
+      [32m[ACC] [ 0]    9090  ' spirit'[0m
+        +-- [32m[ACC] [ 1]      11  ','[0m
+              +-- [32m[ACC] [ 2]     358  ' I'[0m
+                    +-- [90m[rej] [ 3]    1047  ' had'[0m
+                          +-- [90m[rej] [ 4]     279  ' the'[0m
+                                +-- [90m[rej] [ 5]    6776  ' opportunity'[0m
+
+      [32maccepted >[0m  ' spirit, I'
+      [32mindices  >[0m  [0, 1, 2]
+      [90mrejected >  ' had the opportunity'[0m
+
+  [1mStep 39[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[########........][0m  3/6 accepted
+      [32m[ACC] [ 0]    1624  ' del'[0m
+        +-- [32m[ACC] [ 1]    2111  'ved'[0m
+              |-- [32m[ACC] [ 2]    1139  ' into'[0m
+              |     +-- [90m[rej] [ 4]     279  ' the'[0m
+              |           +-- [90m[rej] [ 5]    2254  ' local'[0m
+              +-- [90m[rej] [ 3]     304  ' in'[0m
+
+      [32maccepted >[0m  ' delved into'
+      [32mindices  >[0m  [0, 1, 2]
+      [90mrejected >  ' in the local'[0m
+
+  [1mStep 40[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[#############...][0m  5/6 accepted
+      [32m[ACC] [ 0]    1202  ' its'[0m
+        |-- [32m[ACC] [ 1]    9257  ' rich'[0m
+        |     +-- [32m[ACC] [ 3]   13042  ' cultural'[0m
+        |           +-- [32m[ACC] [ 4]   28948  ' heritage'[0m
+        |                 +-- [32m[ACC] [ 5]      13  '.'[0m
+        +-- [90m[rej] [ 2]   34076  ' vibrant'[0m
+
+      [32maccepted >[0m  ' its rich cultural heritage.'
+      [32mindices  >[0m  [0, 1, 3, 4, 5]
+      [90mrejected >  ' vibrant'[0m
+
+  [1mStep 41[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[########........][0m  3/6 accepted
+      [32m[ACC] [ 0]     358  ' I'[0m
+        +-- [32m[ACC] [ 1]   12263  ' visited'[0m
+              +-- [32m[ACC] [ 2]     279  ' the'[0m
+                    +-- [90m[rej] [ 3]   14154  ' ancient'[0m
+                          +-- [90m[rej] [ 4]   59103  ' Hawaiian'[0m
+                                +-- [90m[rej] [ 5]   57997  ' temples'[0m
+
+      [32maccepted >[0m  ' I visited the'
+      [32mindices  >[0m  [0, 1, 2]
+      [90mrejected >  ' ancient Hawaiian temples'[0m
+
+  [1mStep 42[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[########........][0m  3/6 accepted
+      [32m[ACC] [ 0]   34342  ' Bishop'[0m
+        +-- [32m[ACC] [ 1]   16730  ' Museum'[0m
+              |-- [32m[ACC] [ 2]      11  ','[0m
+              |     |-- [90m[rej] [ 4]     264  ' a'[0m
+              |     +-- [90m[rej] [ 5]     902  ' which'[0m
+              +-- [90m[rej] [ 3]     304  ' in'[0m
+
+      [32maccepted >[0m  ' Bishop Museum,'
+      [32mindices  >[0m  [0, 1, 2]
+      [90mrejected >  ' in a which'[0m
+
+  [1mStep 43[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[########........][0m  3/6 accepted
+      [32m[ACC] [ 0]     279  ' the'[0m
+        |-- [90m[rej] [ 1]   24417  ' oldest'[0m
+        |     +-- [90m[rej] [ 3]   24925  ' museum'[0m
+        |           +-- [90m[rej] [ 5]     304  ' in'[0m
+        +-- [32m[ACC] [ 2]    7928  ' largest'[0m
+              +-- [32m[ACC] [ 4]   24925  ' museum'[0m
+
+      [32maccepted >[0m  ' the largest museum'
+      [32mindices  >[0m  [0, 2, 4]
+      [90mrejected >  ' oldest museum in'[0m
+
+  [1mStep 44[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[########........][0m  3/6 accepted
+      [32m[ACC] [ 0]     304  ' in'[0m
+        |-- [90m[rej] [ 1]     279  ' the'[0m
+        |     +-- [90m[rej] [ 3]    1614  ' state'[0m
+        +-- [32m[ACC] [ 2]   28621  ' Hawaii'[0m
+              +-- [32m[ACC] [ 4]      11  ','[0m
+                    +-- [90m[rej] [ 5]     311  ' to'[0m
+
+      [32maccepted >[0m  ' in Hawaii,'
+      [32mindices  >[0m  [0, 2, 4]
+      [90mrejected >  ' the state to'[0m
+
+  [1mStep 45[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[###.............][0m  1/6 accepted
+      [32m[ACC] [ 0]     902  ' which'[0m
+        |-- [90m[rej] [ 1]    9076  ' offered'[0m
+        |     +-- [90m[rej] [ 3]     264  ' a'[0m
+        |           +-- [90m[rej] [ 4]   16195  ' comprehensive'[0m
+        |                 +-- [90m[rej] [ 5]    1427  ' look'[0m
+        +-- [90m[rej] [ 2]   83860  ' showcased'[0m
+
+      [32maccepted >[0m  ' which'
+      [32mindices  >[0m  [0]
+      [90mrejected >  ' offered showcased a comprehensive look'[0m
+
+  [1mStep 46[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[###########.....][0m  4/6 accepted
+      [32m[ACC] [ 0]   71849  ' showcases'[0m
+        +-- [32m[ACC] [ 1]     279  ' the'[0m
+              +-- [32m[ACC] [ 2]    3925  ' history'[0m
+                    +-- [32m[ACC] [ 3]     323  ' and'[0m
+                          +-- [90m[rej] [ 4]    1989  ' art'[0m
+                                +-- [90m[rej] [ 5]     315  ' of'[0m
+
+      [32maccepted >[0m  ' showcases the history and'
+      [32mindices  >[0m  [0, 1, 2, 3]
+      [90mrejected >  ' art of'[0m
+
+  [1mStep 47[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[########........][0m  3/6 accepted
+      [32m[ACC] [ 0]   32006  ' traditions'[0m
+        +-- [32m[ACC] [ 1]     315  ' of'[0m
+              |-- [32m[ACC] [ 2]     279  ' the'[0m
+              |     +-- [90m[rej] [ 4]   17118  ' Native'[0m
+              +-- [90m[rej] [ 3]   28621  ' Hawaii'[0m
+                    +-- [90m[rej] [ 5]     596  "'s"[0m
+
+      [32maccepted >[0m  ' traditions of the'
+      [32mindices  >[0m  [0, 1, 2]
+      [90mrejected >  " Hawaii Native's"[0m
+
+  [1mStep 48[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[########........][0m  3/6 accepted
+      [32m[ACC] [ 0]   30100  ' islands'[0m
+        |-- [32m[ACC] [ 1]      13  '.'[0m
+        |     |-- [32m[ACC] [ 3]     358  ' I'[0m
+        |     |     +-- [90m[rej] [ 5]    1101  ' also'[0m
+        |     +-- [90m[rej] [ 4]     578  ' The'[0m
+        +-- [90m[rej] [ 2]      11  ','[0m
+
+      [32maccepted >[0m  ' islands. I'
+      [32mindices  >[0m  [0, 1, 3]
+      [90mrejected >  ', The also'[0m
+
+  [1mStep 49[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[###.............][0m  1/6 accepted
+      [32m[ACC] [ 0]     574  ' was'[0m
+        |-- [90m[rej] [ 1]   46304  ' amazed'[0m
+        |     +-- [90m[rej] [ 3]     555  ' by'[0m
+        |           +-- [90m[rej] [ 4]     279  ' the'[0m
+        |                 +-- [90m[rej] [ 5]   20441  ' stunning'[0m
+        +-- [90m[rej] [ 2]   84461  ' mesmer'[0m
+
+      [32maccepted >[0m  ' was'
+      [32mindices  >[0m  [0]
+      [90mrejected >  ' amazed mesmer by the stunning'[0m
+
+  [1mStep 50[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[########........][0m  3/6 accepted
+      [32m[ACC] [ 0]   61914  ' fascinated'[0m
+        +-- [32m[ACC] [ 1]     555  ' by'[0m
+              +-- [32m[ACC] [ 2]     279  ' the'[0m
+                    |-- [90m[rej] [ 3]   57216  ' intricate'[0m
+                    +-- [90m[rej] [ 4]   14154  ' ancient'[0m
+                          +-- [90m[rej] [ 5]   59103  ' Hawaiian'[0m
+
+      [32maccepted >[0m  ' fascinated by the'
+      [32mindices  >[0m  [0, 1, 2]
+      [90mrejected >  ' intricate ancient Hawaiian'[0m
+
+  [1mStep 51[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[###########.....][0m  4/6 accepted
+      [32m[ACC] [ 0]   50829  ' exhibits'[0m
+        +-- [32m[ACC] [ 1]     389  ' on'[0m
+              |-- [90m[rej] [ 2]   59103  ' Hawaiian'[0m
+              |-- [32m[ACC] [ 3]   14154  ' ancient'[0m
+              |     +-- [32m[ACC] [ 5]   59103  ' Hawaiian'[0m
+              +-- [90m[rej] [ 4]     279  ' the'[0m
+
+      [32maccepted >[0m  ' exhibits on ancient Hawaiian'
+      [32mindices  >[0m  [0, 1, 3, 5]
+      [90mrejected >  ' Hawaiian the'[0m
+
+  [1mStep 52[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[########........][0m  3/6 accepted
+      [32m[ACC] [ 0]   57997  ' temples'[0m
+        +-- [32m[ACC] [ 1]      11  ','[0m
+              |-- [90m[rej] [ 2]   36136  ' artifacts'[0m
+              |     +-- [90m[rej] [ 4]      11  ','[0m
+              |           +-- [90m[rej] [ 5]     323  ' and'[0m
+              +-- [32m[ACC] [ 3]     279  ' the'[0m
+
+      [32maccepted >[0m  ' temples, the'
+      [32mindices  >[0m  [0, 1, 3]
+      [90mrejected >  ' artifacts, and'[0m
+
+  [1mStep 53[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[#####...........][0m  2/6 accepted
+      [32m[ACC] [ 0]   19163  ' arrival'[0m
+        +-- [32m[ACC] [ 1]     315  ' of'[0m
+              |-- [90m[rej] [ 2]     279  ' the'[0m
+              |     +-- [90m[rej] [ 5]    3735  ' Pol'[0m
+              |-- [90m[rej] [ 3]    7362  ' foreign'[0m
+              +-- [90m[rej] [ 4]    3735  ' Pol'[0m
+
+      [32maccepted >[0m  ' arrival of'
+      [32mindices  >[0m  [0, 1]
+      [90mrejected >  ' the foreign Pol Pol'[0m
+
+  [1mStep 54[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[################][0m  6/6 accepted
+      [32m[ACC] [ 0]    7665  ' European'[0m
+        +-- [32m[ACC] [ 1]   48539  ' explor'[0m
+              +-- [32m[ACC] [ 2]     388  'ers'[0m
+                    +-- [32m[ACC] [ 3]      11  ','[0m
+                          +-- [32m[ACC] [ 4]     323  ' and'[0m
+                                +-- [32m[ACC] [ 5]     279  ' the'[0m
+
+      [32maccepted >[0m  ' European explorers, and the'
+      [32mindices  >[0m  [0, 1, 2, 3, 4, 5]
+
+  [1mStep 55[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[#####...........][0m  2/6 accepted
+      [32m[ACC] [ 0]    5536  ' impact'[0m
+        +-- [32m[ACC] [ 1]     315  ' of'[0m
+              |-- [90m[rej] [ 2]     279  ' the'[0m
+              |-- [90m[rej] [ 3]   11002  ' Japanese'[0m
+              +-- [90m[rej] [ 4]    4435  ' World'[0m
+                    +-- [90m[rej] [ 5]    5111  ' War'[0m
+
+      [32maccepted >[0m  ' impact of'
+      [32mindices  >[0m  [0, 1]
+      [90mrejected >  ' the Japanese World War'[0m
+
+  [1mStep 56[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[########........][0m  3/6 accepted
+      [32m[ACC] [ 0]    6617  ' modern'[0m
+        +-- [32m[ACC] [ 1]    2065  'ization'[0m
+              |-- [90m[rej] [ 2]     382  '.\n\n'[0m
+              |     +-- [90m[rej] [ 4]    4054  'One'[0m
+              |           +-- [90m[rej] [ 5]     315  ' of'[0m
+              +-- [32m[ACC] [ 3]     389  ' on'[0m
+
+      [32maccepted >[0m  ' modernization on'
+      [32mindices  >[0m  [0, 1, 3]
+      [90mrejected >  '.\n\nOne of'[0m
+
+  [1mStep 57[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[#####...........][0m  2/6 accepted
+      [32m[ACC] [ 0]     279  ' the'[0m
+        |-- [90m[rej] [ 1]   13218  ' island'[0m
+        |     +-- [90m[rej] [ 3]     596  "'s"[0m
+        |           +-- [90m[rej] [ 4]   26031  ' ecosystem'[0m
+        |                 +-- [90m[rej] [ 5]     382  '.\n\n'[0m
+        +-- [32m[ACC] [ 2]   10068  ' native'[0m
+
+      [32maccepted >[0m  ' the native'
+      [32mindices  >[0m  [0, 2]
+      [90mrejected >  " island's ecosystem.\n\n"[0m
+
+  [1mStep 58[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[################][0m  6/6 accepted
+      [32m[ACC] [ 0]    7829  ' culture'[0m
+        +-- [32m[ACC] [ 1]     382  '.\n\n'[0m
+              +-- [32m[ACC] [ 2]    4054  'One'[0m
+                    +-- [32m[ACC] [ 3]     315  ' of'[0m
+                          +-- [32m[ACC] [ 4]     279  ' the'[0m
+                                +-- [32m[ACC] [ 5]   22020  ' highlights'[0m
+
+      [32maccepted >[0m  ' culture.\n\nOne of the highlights'
+      [32mindices  >[0m  [0, 1, 2, 3, 4, 5]
+
+  [1mStep 59[0m  topk=3  steps=5  dtn=6  threshold=1.0
+  [36m[################][0m  6/6 accepted
+      [32m[ACC] [ 0]     315  ' of'[0m
+        +-- [32m[ACC] [ 1]     856  ' my'[0m
+              +-- [32m[ACC] [ 2]    8577  ' trip'[0m
+                    +-- [32m[ACC] [ 3]     574  ' was'[0m
+                          +-- [32m[ACC] [ 4]   24096  ' attending'[0m
+                                +-- [32m[ACC] [ 5]     264  ' a'[0m
+
+      [32maccepted >[0m  ' of my trip was attending a'
+      [32mindices  >[0m  [0, 1, 2, 3, 4, 5]
+
+
+[32m[1mAll checks passed.[0m
+

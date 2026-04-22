@@ -1,0 +1,728 @@
+diff --git a/python/sglang/srt/model_executor/cuda_graph_runner.py b/python/sglang/srt/model_executor/cuda_graph_runner.py
+index e3840daa7..e262017f5 100644
+--- a/python/sglang/srt/model_executor/cuda_graph_runner.py
++++ b/python/sglang/srt/model_executor/cuda_graph_runner.py
+@@ -1,3 +1,4 @@
++# /home/ou222/rds/hpc-work/diss/sglang/python/sglang/srt/model_executor/cuda_graph_runner.py
+ # Copyright 2023-2024 SGLang Team
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+@@ -547,10 +548,26 @@ class CudaGraphRunner:
+                 self.num_tokens_per_bs = (
+                     self.model_runner.server_args.speculative_num_draft_tokens
+                 )
++                _topk = (
++                    getattr(model_runner.server_args, "speculative_eagle_topk", 1) or 1
++                )
++                _max_steps = (
++                    getattr(model_runner.server_args, "speculative_num_steps", 1) or 1
++                )
++                if model_runner.spec_algorithm.is_eagle() or model_runner.spec_algorithm.is_standalone():
++                    if getattr(model_runner.server_args, "enable_dynamic_spec", False):
++                        self.dtn_values = [_topk * s + 1 for s in range(1, _max_steps + 1)]
++                    else:
++                        self.dtn_values = [self.num_tokens_per_bs]
++                else:
++                    self.dtn_values = [self.num_tokens_per_bs]
+         elif self.is_dllm:
+             self.capture_forward_mode = ForwardMode.DLLM_EXTEND
+             self.num_tokens_per_bs = self.dllm_config.block_size
+ 
++        if not hasattr(self, "dtn_values"):
++            self.dtn_values = [self.num_tokens_per_bs]
++
+         # Batch sizes to capture
+         self.capture_bs, self.compile_bs = get_batch_sizes_to_capture(
+             model_runner, self.num_tokens_per_bs
+@@ -631,6 +648,7 @@ class CudaGraphRunner:
+         try:
+             with model_capture_mode():
+                 self.capture()
++                logger.info(f"[DynSpec] target graph keys sample: {list(self.graphs.keys())[:6]}")
+         except RuntimeError as e:
+             raise Exception(
+                 f"Capture cuda graph failed: {e}\n{CUDA_GRAPH_CAPTURE_FAILED_MSG}"
+@@ -656,15 +674,32 @@ class CudaGraphRunner:
+         else:
+             cuda_graph_bs = forward_batch.batch_size
+ 
+-        graph_key = cuda_graph_bs
+-        if self.enable_pdmux:
+-            graph_key = f"{get_current_stream_idx()}_{cuda_graph_bs}"
+-
+-        is_bs_supported = (
+-            graph_key in self.graphs
+-            if self.disable_padding
+-            else cuda_graph_bs <= self.max_bs
+-        )
++        if len(self.dtn_values) > 1:
++            # For dynamic spec: key is (bs, dtn)
++            dtn = getattr(
++                getattr(forward_batch, "spec_info", None),
++                "draft_token_num",
++                self.num_tokens_per_bs,
++            )
++            graph_key = (
++                (cuda_graph_bs, dtn)
++                if not self.enable_pdmux
++                else f"{get_current_stream_idx()}_{cuda_graph_bs}_{dtn}"
++            )
++            is_bs_supported = (
++                graph_key in self.graphs
++                if self.disable_padding
++                else (cuda_graph_bs <= self.max_bs and dtn in self.dtn_values)
++            )
++        else:
++            graph_key = cuda_graph_bs
++            if self.enable_pdmux:
++                graph_key = f"{get_current_stream_idx()}_{cuda_graph_bs}"
++            is_bs_supported = (
++                graph_key in self.graphs
++                if self.disable_padding
++                else cuda_graph_bs <= self.max_bs
++            )
+ 
+         if self.require_mlp_sync:
+             is_bs_supported = is_bs_supported and forward_batch.can_run_dp_cuda_graph
+@@ -770,14 +805,25 @@ class CudaGraphRunner:
+                     num_tokens=bs * self.num_tokens_per_bs,
+                     tp_group=self.model_runner.tp_group,
+                 ) as forward:
+-                    (
+-                        graph,
+-                        output_buffers,
+-                    ) = self.capture_one_batch_size(bs, forward, stream_idx)
+-                    # For pd_multiplexing, we need to save the graph and output buffers
+-                    key = bs if stream_idx is None else f"{stream_idx}_{bs}"
+-                    self.graphs[key] = graph
+-                    self.output_buffers[key] = output_buffers
++                    if len(self.dtn_values) > 1:
++                        # Multi-dtn: capture one graph per dtn for this bs
++                        for dtn in self.dtn_values:
++                            # Temporarily set num_tokens_per_bs so capture_one_batch_size
++                            # builds the forward_batch with the right token count.
++                            self.num_tokens_per_bs = dtn
++                            graph, output_buffers = self.capture_one_batch_size(
++                                bs, forward, stream_idx
++                            )
++                            key = (bs, dtn) if stream_idx is None else f"{stream_idx}_{bs}_{dtn}"
++                            self.graphs[key] = graph
++                            self.output_buffers[key] = output_buffers
++                        # Restore to max dtn after loop
++                        self.num_tokens_per_bs = max(self.dtn_values)
++                    else:
++                        graph, output_buffers = self.capture_one_batch_size(bs, forward, stream_idx)
++                        key = bs if stream_idx is None else f"{stream_idx}_{bs}"
++                        self.graphs[key] = graph
++                        self.output_buffers[key] = output_buffers
+ 
+         # Trigger CUDA graph capture for specific shapes.
+         # Capture the large shapes first so that the smaller shapes
+@@ -1048,13 +1094,25 @@ class CudaGraphRunner:
+         self.recapture_if_needed(forward_batch)
+ 
+         raw_bs = forward_batch.batch_size
+-        raw_num_token = raw_bs * self.num_tokens_per_bs
++        
++        # ── dynamic spec: use actual dtn for this request, not the stored max ──
++        if len(self.dtn_values) > 1:
++            actual_dtn = getattr(
++                getattr(forward_batch, "spec_info", None),
++                "draft_token_num",
++                self.num_tokens_per_bs,
++            )
++        else:
++            actual_dtn = self.num_tokens_per_bs
++        # ────────────────────────────────────────────────────────────────────────
++        
++        raw_num_token = raw_bs * actual_dtn
+ 
+         # Pad
+         if self.require_mlp_tp_gather:
+             max_num_tokens = max(forward_batch.global_num_tokens_cpu)
+             max_batch_size = (
+-                max_num_tokens / self.num_tokens_per_bs
++                max_num_tokens / actual_dtn
+                 if self.model_runner.spec_algorithm.is_eagle()
+                 or self.model_runner.spec_algorithm.is_standalone()
+                 else max_num_tokens
+@@ -1071,7 +1129,7 @@ class CudaGraphRunner:
+             bs=bs,
+             seq_len_fill_value=self.seq_len_fill_value,
+             require_gathered_buffer=self.require_gathered_buffer,
+-            num_tokens_per_bs=self.num_tokens_per_bs,
++            num_tokens_per_bs=actual_dtn,
+             nsa_enable_prefill_cp=self.nsa_enable_prefill_cp,
+             enable_num_token_non_padded_flag=enable_num_token_non_padded(
+                 self.model_runner.server_args
+@@ -1125,7 +1183,18 @@ class CudaGraphRunner:
+             self.buffers.positions[: self.raw_num_token].copy_(forward_batch.positions)
+ 
+         # Replay
+-        if self.enable_pdmux:
++        if len(self.dtn_values) > 1:
++            dtn = getattr(
++                getattr(forward_batch, "spec_info", None),
++                "draft_token_num",
++                self.num_tokens_per_bs,
++            )
++            graph_key = (
++                (self.bs, dtn)
++                if not self.enable_pdmux
++                else f"{get_current_stream_idx()}_{self.bs}_{dtn}"
++            )
++        elif self.enable_pdmux:
+             graph_key = f"{get_current_stream_idx()}_{self.bs}"
+         else:
+             graph_key = self.bs
+@@ -1175,7 +1244,7 @@ class CudaGraphRunner:
+                     retrive_cum_len=None,
+                     spec_steps=self.model_runner.server_args.speculative_num_steps,
+                     topk=self.model_runner.server_args.speculative_eagle_topk,
+-                    draft_token_num=self.model_runner.server_args.speculative_num_draft_tokens,
++                    draft_token_num=self.num_tokens_per_bs,
+                     capture_hidden_mode=CaptureHiddenMode.FULL,
+                     seq_lens_sum=None,
+                     seq_lens_cpu=None,
+diff --git a/python/sglang/srt/server_args.py b/python/sglang/srt/server_args.py
+index e98dd6082..393cbb3a1 100644
+--- a/python/sglang/srt/server_args.py
++++ b/python/sglang/srt/server_args.py
+@@ -484,6 +484,8 @@ class ServerArgs:
+     speculative_draft_model_path: Optional[str] = None
+     speculative_draft_model_revision: Optional[str] = None
+     speculative_draft_load_format: Optional[str] = None
++    enable_dynamic_spec: bool = False
++    dynamic_spec_config: Optional[str] = None
+     speculative_num_steps: Optional[int] = None
+     speculative_eagle_topk: Optional[int] = None
+     speculative_num_draft_tokens: Optional[int] = None
+@@ -4483,6 +4485,29 @@ class ServerArgs:
+             "If not specified, will use the same format as --load-format. "
+             "Use 'dummy' to initialize draft model weights with random values for profiling.",
+         )
++        parser.add_argument(
++            "--enable-dynamic-spec",
++            action="store_true",
++            default=False,
++            help=(
++                "Enable dynamic speculative decoding. Varies spec_steps and "
++                "draft_token_num per request based on confidence signals. "
++                "Captures one CUDA graph per valid (steps, dtn) config at startup."
++            ),
++        )
++        parser.add_argument(
++            "--dynamic-spec-config",
++            type=str,
++            default=None,
++            help=(
++                "JSON string overriding DynamicSpecConfig fields. Only used when "
++                "--enable-dynamic-spec is set. Controls which signals are active "
++                "and their weights. Example: "
++                "'{\"draft_entropy\": true, \"weight_draft_entropy\": 1.5, "
++                "\"entropy_gap\": true, \"weight_entropy_gap\": 1.0, "
++                "\"high_conf_threshold\": 0.3, \"low_conf_threshold\": 0.6}'"
++            ),
++        )
+         parser.add_argument(
+             "--speculative-num-steps",
+             type=int,
+diff --git a/python/sglang/srt/speculative/eagle_draft_cuda_graph_runner.py b/python/sglang/srt/speculative/eagle_draft_cuda_graph_runner.py
+index 40e859b2d..06ebead85 100644
+--- a/python/sglang/srt/speculative/eagle_draft_cuda_graph_runner.py
++++ b/python/sglang/srt/speculative/eagle_draft_cuda_graph_runner.py
+@@ -1,3 +1,4 @@
++#/home/ou222/rds/hpc-work/diss/sglang/python/sglang/srt/speculative/eagle_draft_cuda_graph_runner.py
+ from __future__ import annotations
+ 
+ import bisect
+@@ -54,7 +55,7 @@ class EagleDraftInputBuffers(ForwardInputBuffers):
+ 
+ 
+ class EAGLEDraftCudaGraphRunner:
+-    def __init__(self, eagle_worker: EAGLEWorker):
++    def __init__(self, eagle_worker: EAGLEWorker, spec_steps: Optional[int] = None):
+         # Parse args
+         self.eagle_worker = eagle_worker
+         if not hasattr(eagle_worker, "model_runner"):
+@@ -72,8 +73,16 @@ class EAGLEDraftCudaGraphRunner:
+         self.require_attn_tp_gather = require_attn_tp_gather(model_runner.server_args)
+         self.tp_size = self.model_runner.tp_size
+         self.dp_size = self.model_runner.dp_size
+-        self.speculative_num_steps = model_runner.server_args.speculative_num_steps
++        self.speculative_num_steps = (
++            spec_steps
++            if spec_steps is not None
++            else model_runner.server_args.speculative_num_steps
++        )
+         self.topk = model_runner.server_args.speculative_eagle_topk
++        self.capture_dtn = min(
++            eagle_worker.speculative_num_draft_tokens,
++            self.speculative_num_steps * self.topk + 1,
++        )
+         self.enable_profile_cuda_graph = (
+             model_runner.server_args.enable_profile_cuda_graph
+         )
+@@ -85,6 +94,7 @@ class EAGLEDraftCudaGraphRunner:
+ 
+         # Attention backend
+         self.num_tokens_per_bs = self.topk
++        self.dtn_values = [self.num_tokens_per_bs]
+         self.max_bs = max(self.capture_bs)
+         self.max_num_token = self.max_bs * self.num_tokens_per_bs
+ 
+@@ -329,7 +339,11 @@ class EAGLEDraftCudaGraphRunner:
+             output_cache_loc_backup = forward_batch.out_cache_loc
+             hidden_states_backup = forward_batch.spec_info.hidden_states
+ 
+-            ret = self.eagle_worker.draft_forward(forward_batch)
++            ret = self.eagle_worker.draft_forward(
++                forward_batch,
++                dyn_steps=self.speculative_num_steps,
++                dyn_dtn=self.capture_dtn,
++            )
+ 
+             forward_batch.out_cache_loc = output_cache_loc_backup
+             forward_batch.spec_info.hidden_states = hidden_states_backup
+@@ -382,9 +396,8 @@ class EAGLEDraftCudaGraphRunner:
+ 
+         # Common inputs
+         buffers.seq_lens[:raw_bs].copy_(forward_batch.seq_lens)
+-        buffers.out_cache_loc[: raw_num_token * self.speculative_num_steps].copy_(
+-            forward_batch.out_cache_loc
+-        )
++        src_len = raw_num_token * self.speculative_num_steps
++        buffers.out_cache_loc[:src_len].copy_(forward_batch.out_cache_loc[:src_len])
+         buffers.positions[:raw_num_token].copy_(forward_batch.positions)
+         buffers.topk_p[:raw_bs].copy_(forward_batch.spec_info.topk_p)
+         buffers.topk_index[:raw_bs].copy_(forward_batch.spec_info.topk_index)
+diff --git a/python/sglang/srt/speculative/eagle_draft_extend_cuda_graph_runner.py b/python/sglang/srt/speculative/eagle_draft_extend_cuda_graph_runner.py
+index 0bc5886a0..388a93e17 100644
+--- a/python/sglang/srt/speculative/eagle_draft_extend_cuda_graph_runner.py
++++ b/python/sglang/srt/speculative/eagle_draft_extend_cuda_graph_runner.py
+@@ -90,6 +90,7 @@ class EAGLEDraftExtendCudaGraphRunner:
+ 
+         # Attention backend
+         self.num_tokens_per_bs = self.speculative_num_steps + 1
++        self.dtn_values = [self.num_tokens_per_bs]
+         self.max_bs = max(self.capture_bs)
+         self.max_num_token = self.max_bs * self.num_tokens_per_bs
+ 
+diff --git a/python/sglang/srt/speculative/eagle_info.py b/python/sglang/srt/speculative/eagle_info.py
+index c28a71ed2..4125b8ac4 100644
+--- a/python/sglang/srt/speculative/eagle_info.py
++++ b/python/sglang/srt/speculative/eagle_info.py
+@@ -221,7 +221,8 @@ class EagleVerifyInput(SpecInput, EagleVerifyInputV2Mixin):
+         logits_output: LogitsProcessorOutput,
+         token_to_kv_pool_allocator: BaseTokenToKVPoolAllocator,
+         page_size: int,
+-        vocab_mask: Optional[torch.Tensor] = None,  # For grammar
++        vocab_mask: Optional[torch.Tensor] = None,
++        dynamic_spec_cfg=None,                    # NEW
+     ) -> torch.Tensor:
+         """
+         Verify and find accepted tokens based on logits output and batch
+@@ -300,6 +301,15 @@ class EagleVerifyInput(SpecInput, EagleVerifyInputV2Mixin):
+             self.grammar.apply_vocab_mask(
+                 logits=logits_output.next_token_logits, vocab_mask=vocab_mask
+             )
++        
++        # ── dynamic spec: collect target signals ─────────────────────────────
++        if dynamic_spec_cfg is not None:
++            dynamic_spec_cfg.collect_target_signals(
++                logits=logits_output.next_token_logits,
++                bs=bs,
++                draft_token_num=self.draft_token_num,
++            )
++        # ────────────────────────────────────────────────────────────────────
+ 
+         # Sample tokens. Force greedy sampling on AMD
+         is_all_greedy = sampling_info.is_all_greedy
+@@ -442,6 +452,14 @@ class EagleVerifyInput(SpecInput, EagleVerifyInputV2Mixin):
+             req.spec_rejected_tokens_log.append([draft_toks[idx] for idx in range(len(draft_toks)) if idx not in acc_set])
+             req.spec_accept_index_log.append(acc_indices)
+ 
++            # ── dynamic spec: collect per-step accept signal ──────────────────────
++            if dynamic_spec_cfg is not None:
++                dynamic_spec_cfg.collect_accept_signal(
++                    accept_index_row=accept_index_row,
++                    draft_token_num=self.draft_token_num,
++                )
++            # ─────────────────────────────────────────────────────────────────────
++
+             if not req.spec_tree_structure_logged:
+                 req.spec_logged_topk = self.topk
+                 req.spec_logged_num_steps = self.spec_steps
+diff --git a/python/sglang/srt/speculative/eagle_utils.py b/python/sglang/srt/speculative/eagle_utils.py
+index f41a92523..f8441c32f 100644
+--- a/python/sglang/srt/speculative/eagle_utils.py
++++ b/python/sglang/srt/speculative/eagle_utils.py
+@@ -21,9 +21,16 @@ def organize_draft_results(
+     token_list: List[torch.Tensor],
+     parents_list: List[torch.Tensor],
+     num_draft_token: int,
++    dynamic_spec_cfg=None,              # NEW: optional DynamicSpecConfig
+ ):
+     score_list = torch.cat(score_list, dim=1).flatten(1)
+     ss_token_list = torch.cat(token_list, dim=1)
++
++    # ── dynamic spec: collect path score before truncation ───────────────
++    if dynamic_spec_cfg is not None:
++        dynamic_spec_cfg.collect_path_score(score_list)
++    # ────────────────────────────────────────────────────────────────────
++
+     top_scores = torch.topk(score_list, num_draft_token - 1, dim=-1)
+     top_scores_index = top_scores.indices
+     top_scores_index = torch.sort(top_scores_index).values
+diff --git a/python/sglang/srt/speculative/eagle_worker.py b/python/sglang/srt/speculative/eagle_worker.py
+index b6c53422e..c7de15241 100644
+--- a/python/sglang/srt/speculative/eagle_worker.py
++++ b/python/sglang/srt/speculative/eagle_worker.py
+@@ -1,3 +1,4 @@
++#eagle_worker.py
+ import logging
+ import time
+ from typing import List, Optional, Tuple
+@@ -68,6 +69,8 @@ from sglang.srt.utils import (
+ )
+ from sglang.srt.utils.patch_torch import monkey_patch_torch_reductions
+ 
++from sglang.srt.speculative.dynamic_spec_config import DynamicSpecConfig
++
+ _is_npu = is_npu()
+ 
+ if is_cuda():
+@@ -155,6 +158,41 @@ class EAGLEWorker(TpModelWorker):
+                 memory_pool_config=target_worker.model_runner.memory_pool_config,
+             )
+ 
++        # Base config — enabled flag driven by server argument
++        _dyn_cfg = DynamicSpecConfig(
++            enabled=getattr(self.server_args, "enable_dynamic_spec", False),
++            vocab_size=self.model_config.vocab_size,
++        )
++
++        # Apply JSON overrides from --dynamic-spec-config if provided
++        # This lets the gridsearch configure signals/weights without restarting
++        # with hardcoded values.
++        if (
++            getattr(self.server_args, "enable_dynamic_spec", False)
++            and getattr(self.server_args, "dynamic_spec_config", None)
++        ):
++            import json as _json
++            try:
++                _overrides = _json.loads(self.server_args.dynamic_spec_config)
++                for _k, _v in _overrides.items():
++                    if hasattr(_dyn_cfg, _k):
++                        setattr(_dyn_cfg, _k, _v)
++                    else:
++                        logger.warning(
++                            f"DynamicSpecConfig: unknown field '{_k}' in "
++                            f"--dynamic-spec-config JSON, ignoring."
++                        )
++                logger.info(
++                    f"DynamicSpecConfig overrides applied: {_overrides}"
++                )
++            except Exception as _e:
++                logger.error(
++                    f"Failed to parse --dynamic-spec-config JSON: {_e}. "
++                    f"Using default DynamicSpecConfig."
++                )
++
++        self.dynamic_spec_cfg = _dyn_cfg
++
+         embed, head = self.target_worker.model_runner.model.get_embed_and_head()
+ 
+         if self.speculative_algorithm.is_eagle3():
+@@ -231,7 +269,8 @@ class EAGLEWorker(TpModelWorker):
+         self.draft_model_runner.draft_attn_backend = self.draft_attn_backend
+ 
+     def init_cuda_graphs(self):
+-        """Capture cuda graphs."""
++        """Capture one draft CUDA graph per step count for dynamic spec decoding."""
++        self.cuda_graph_runners = {}
+         self.cuda_graph_runner = None
+         self.cuda_graph_runner_for_draft_extend = None
+ 
+@@ -242,34 +281,57 @@ class EAGLEWorker(TpModelWorker):
+             "npu": EAGLEDraftNpuGraphRunner,
+             "cuda": EAGLEDraftCudaGraphRunner,
+         }
+-        # Capture draft
++
+         if self.speculative_num_steps > 1:
+-            tic = time.perf_counter()
+-            before_mem = get_available_gpu_memory(self.device, self.gpu_id)
+-            logger.info(
+-                f"Capture draft cuda graph begin. This can take up to several minutes. avail mem={before_mem:.2f} GB"
+-            )
+-            self.cuda_graph_runner = Device2DraftCudaGraphRunner[
+-                self.target_worker.device
+-            ](self)
+-            after_mem = get_available_gpu_memory(self.device, self.gpu_id)
+-            logger.info(
+-                f"Capture draft cuda graph end. Time elapsed: {time.perf_counter() - tic:.2f} s. mem usage={(before_mem - after_mem):.2f} GB. avail mem={after_mem:.2f} GB."
+-            )
++            if getattr(self.server_args, "enable_dynamic_spec", False):
++                for steps in range(1, self.speculative_num_steps + 1):
++                    tic = time.perf_counter()
++                    before_mem = get_available_gpu_memory(self.device, self.gpu_id)
++                    logger.info(
++                        f"Capture draft cuda graph (steps={steps}) begin. "
++                        f"avail mem={before_mem:.2f} GB"
++                    )
++                    runner = Device2DraftCudaGraphRunner[self.target_worker.device](
++                        self, spec_steps=steps
++                    )
++                    self.cuda_graph_runners[steps] = runner
++                    after_mem = get_available_gpu_memory(self.device, self.gpu_id)
++                    logger.info(
++                        f"Capture draft cuda graph (steps={steps}) end. "
++                        f"Time elapsed: {time.perf_counter() - tic:.2f} s. "
++                        f"mem usage={(before_mem - after_mem):.2f} GB. "
++                        f"avail mem={after_mem:.2f} GB."
++                    )
++                self.cuda_graph_runner = self.cuda_graph_runners[self.speculative_num_steps]
++            else:
++                tic = time.perf_counter()
++                before_mem = get_available_gpu_memory(self.device, self.gpu_id)
++                logger.info(
++                    f"Capture draft cuda graph begin. avail mem={before_mem:.2f} GB"
++                )
++                self.cuda_graph_runner = Device2DraftCudaGraphRunner[
++                    self.target_worker.device
++                ](self)
++                after_mem = get_available_gpu_memory(self.device, self.gpu_id)
++                logger.info(
++                    f"Capture draft cuda graph end. "
++                    f"Time elapsed: {time.perf_counter() - tic:.2f} s. "
++                    f"mem usage={(before_mem - after_mem):.2f} GB. "
++                    f"avail mem={after_mem:.2f} GB."
++                )
+ 
+-        # Capture extend
+         if self.draft_extend_attn_backend and not _is_npu:
+             tic = time.perf_counter()
+             before_mem = get_available_gpu_memory(self.device, self.gpu_id)
+             logger.info(
+-                f"Capture draft extend cuda graph begin. This can take up to several minutes. avail mem={before_mem:.2f} GB"
+-            )
+-            self.cuda_graph_runner_for_draft_extend = EAGLEDraftExtendCudaGraphRunner(
+-                self
++                f"Capture draft extend cuda graph begin. avail mem={before_mem:.2f} GB"
+             )
++            self.cuda_graph_runner_for_draft_extend = EAGLEDraftExtendCudaGraphRunner(self)
+             after_mem = get_available_gpu_memory(self.device, self.gpu_id)
+             logger.info(
+-                f"Capture draft extend cuda graph end. Time elapsed: {time.perf_counter() - tic:.2f} s. mem usage={(before_mem - after_mem):.2f} GB. avail mem={after_mem:.2f} GB."
++                f"Capture draft extend cuda graph end. "
++                f"Time elapsed: {time.perf_counter() - tic:.2f} s. "
++                f"mem usage={(before_mem - after_mem):.2f} GB. avail mem={after_mem:.2f} GB."
+             )
+ 
+     @property
+@@ -531,11 +593,11 @@ class EAGLEWorker(TpModelWorker):
+         )
+ 
+     def draft(self, batch: ScheduleBatch):
+-        # Parse args
+         if batch.forward_mode.is_idle():
+             self._draft_preprocess_idle(batch)
+         else:
+             self._draft_preprocess_decode(batch)
++            self.dynamic_spec_cfg.reset()
+ 
+         spec_info = batch.spec_info
+         assert isinstance(spec_info, EagleDraftInput)
+@@ -545,30 +607,49 @@ class EAGLEWorker(TpModelWorker):
+         spec_info.num_tokens_for_logprob_per_req = self.topk
+         batch.return_hidden_states = False
+ 
+-        # Get forward batch
++        if getattr(self.server_args, "enable_dynamic_spec", False):
++            _rep_req = batch.reqs[0] if batch.reqs else None
++            _dyn_steps, _dyn_dtn = self.dynamic_spec_cfg.decide(
++                req=_rep_req,
++                topk=self.topk,
++                num_steps=self.speculative_num_steps,
++            )
++        else:
++            _dyn_steps = self.speculative_num_steps
++            _dyn_dtn = self.speculative_num_draft_tokens
++
++        # ── DEBUG LOGGING ────────────────────────────────────────────────────
++        if self.dynamic_spec_cfg.enabled:
++            rolling_rate = self.dynamic_spec_cfg._get_rolling_accept_rate(_rep_req)
++            score = self.dynamic_spec_cfg._compute_combined_score(_rep_req)
++            print(f"[DYNAMIC] step: score={score:.4f} "
++                  f"steps={_dyn_steps} dtn={_dyn_dtn} "
++                  f"rate={rolling_rate if rolling_rate is not None else 0.0:.3f}")
++        # ─────────────────────────────────────────────────────────────────────
++
+         model_worker_batch = batch.get_model_worker_batch()
+         assert model_worker_batch.capture_hidden_mode == CaptureHiddenMode.LAST
+         forward_batch = ForwardBatch.init_new(
+             model_worker_batch, self.draft_model_runner
+         )
+-        can_cuda_graph = self.cuda_graph_runner and self.cuda_graph_runner.can_run(
+-            forward_batch
+-        )
+-        if can_cuda_graph:
+-            parent_list, top_scores_index, draft_tokens = self.cuda_graph_runner.replay(
++
++        if getattr(self.server_args, "enable_dynamic_spec", False):
++            runner = self.cuda_graph_runners.get(_dyn_steps) if self.cuda_graph_runners else None
++            can_cuda_graph = runner is not None and runner.can_run(forward_batch)
++        else:
++            can_cuda_graph = self.cuda_graph_runner and self.cuda_graph_runner.can_run(
+                 forward_batch
+             )
++            runner = self.cuda_graph_runner
++
++        if can_cuda_graph:
++            parent_list, top_scores_index, draft_tokens = runner.replay(forward_batch)
+         else:
+             forward_batch.can_run_dp_cuda_graph = False
+-            if (
+-                not forward_batch.forward_mode.is_idle()
+-                and self.speculative_num_steps > 1
+-            ):
+-                # Skip attention backend init for idle mode or 1-step draft
++            if not forward_batch.forward_mode.is_idle() and _dyn_steps > 1:
+                 self.draft_attn_backend.init_forward_metadata(forward_batch)
+-            # Run forward steps
+             parent_list, top_scores_index, draft_tokens = self.draft_forward(
+-                forward_batch
++                forward_batch, dyn_steps=_dyn_steps, dyn_dtn=_dyn_dtn
+             )
+ 
+         if batch.forward_mode.is_idle():
+@@ -593,8 +674,8 @@ class EAGLEWorker(TpModelWorker):
+             batch.seq_lens,
+             batch.seq_lens_sum,
+             self.topk,
+-            self.speculative_num_steps,
+-            self.speculative_num_draft_tokens,
++            _dyn_steps,
++            _dyn_dtn,
+         )
+ 
+         return EagleVerifyInput(
+@@ -605,15 +686,25 @@ class EAGLEWorker(TpModelWorker):
+             retrive_next_token=retrive_next_token,
+             retrive_next_sibling=retrive_next_sibling,
+             retrive_cum_len=None,
+-            spec_steps=self.speculative_num_steps,
++            spec_steps=_dyn_steps,
+             topk=self.topk,
+-            draft_token_num=self.server_args.speculative_num_draft_tokens,
++            draft_token_num=_dyn_dtn,
+             capture_hidden_mode=CaptureHiddenMode.FULL,
+             seq_lens_sum=forward_batch.seq_lens_sum,
+             seq_lens_cpu=forward_batch.seq_lens_cpu,
+         )
+ 
+-    def draft_forward(self, forward_batch: ForwardBatch):
++    def draft_forward(
++        self,
++        forward_batch: ForwardBatch,
++        dyn_steps: Optional[int] = None,
++        dyn_dtn: Optional[int] = None,
++    ):
++        if dyn_steps is None:
++            dyn_steps = self.speculative_num_steps
++        if dyn_dtn is None:
++            dyn_dtn = self.speculative_num_draft_tokens
++
+         # Parse args
+         spec_info = forward_batch.spec_info
+         assert isinstance(spec_info, EagleDraftInput)
+@@ -629,12 +720,11 @@ class EAGLEWorker(TpModelWorker):
+         if self.hot_token_id is not None:
+             topk_index = self.hot_token_id[topk_index]
+         # TODO: We only need self.speculative_num_steps - 1 cache loc
+-        out_cache_loc = out_cache_loc.reshape(
+-            forward_batch.batch_size, self.topk, self.speculative_num_steps
+-        )
+-        out_cache_loc = out_cache_loc.permute((2, 0, 1)).reshape(
+-            self.speculative_num_steps, -1
++        total_cache_slots = forward_batch.batch_size * self.topk * dyn_steps
++        out_cache_loc = out_cache_loc[:total_cache_slots].reshape(
++            forward_batch.batch_size, self.topk, dyn_steps
+         )
++        out_cache_loc = out_cache_loc.permute((2, 0, 1)).reshape(dyn_steps, -1)
+ 
+         # Return values
+         score_list: List[torch.Tensor] = []
+@@ -643,7 +733,7 @@ class EAGLEWorker(TpModelWorker):
+ 
+         # Forward multiple steps
+         scores = None
+-        for i in range(self.speculative_num_steps):
++        for i in range(dyn_steps):
+             input_ids, hidden_states, scores, tree_info = select_top_k_tokens(
+                 i, topk_p, topk_index, hidden_states, scores, self.topk
+             )
+@@ -652,7 +742,7 @@ class EAGLEWorker(TpModelWorker):
+             parents_list.append(tree_info[2])
+ 
+             # We don't need to run the last forward. we get 1 token from draft prefill and (#spec steps - 1) tokens here
+-            if i == self.speculative_num_steps - 1:
++            if i == dyn_steps - 1:
+                 break
+ 
+             # Set inputs
+@@ -676,6 +766,15 @@ class EAGLEWorker(TpModelWorker):
+             ).logits_output
+             maybe_detect_nan(logits_output.next_token_logits, f"draft_forward step {i}")
+             probs = torch.softmax(logits_output.next_token_logits, dim=-1)
++
++            # ── dynamic spec: collect draft signals ──────────────────────────────
++            self.dynamic_spec_cfg.collect_draft_signals(
++                probs=probs,
++                hidden_states=hidden_states,
++                step_i=i,
++            )
++            # ────────────────────────────────────────────────────────────────────
++
+             topk_p, topk_index = fast_topk(probs, self.topk, dim=-1)
+             maybe_detect_oob(
+                 topk_index,
+@@ -688,7 +787,11 @@ class EAGLEWorker(TpModelWorker):
+             hidden_states = logits_output.hidden_states
+ 
+         parent_list, top_scores_index, draft_tokens = organize_draft_results(
+-            score_list, token_list, parents_list, self.speculative_num_draft_tokens
++            score_list,
++            token_list,
++            parents_list,
++            dyn_dtn,
++            dynamic_spec_cfg=self.dynamic_spec_cfg,
+         )
+ 
+         return parent_list, top_scores_index, draft_tokens
+@@ -700,7 +803,7 @@ class EAGLEWorker(TpModelWorker):
+     def verify(self, batch: ScheduleBatch, spec_info: EagleVerifyInput):
+         seq_lens_pre_verify = batch.seq_lens.clone()
+         spec_info.prepare_for_verify(batch, self.page_size)
+-        spec_info.num_tokens_per_req = self.speculative_num_steps + 1
++        spec_info.num_tokens_per_req = spec_info.spec_steps + 1
+         batch.return_hidden_states = False
+         batch.forward_mode = (
+             ForwardMode.TARGET_VERIFY
+@@ -759,8 +862,15 @@ class EAGLEWorker(TpModelWorker):
+             self.token_to_kv_pool_allocator,
+             self.page_size,
+             vocab_mask,
++            dynamic_spec_cfg=self.dynamic_spec_cfg,   # NEW
+         )
+ 
++        # ── DEBUG LOGGING ────────────────────────────────────────────────────
++        if self.dynamic_spec_cfg.enabled:
++            print(f"[VERIFY] used spec_steps={spec_info.spec_steps} "
++                  f"draft_token_num={spec_info.draft_token_num}")
++        # ─────────────────────────────────────────────────────────────────────
++
+         # Post process based on verified outputs.
+         # Pick indices that we care (accepted)
+         logits_output.next_token_logits = logits_output.next_token_logits[

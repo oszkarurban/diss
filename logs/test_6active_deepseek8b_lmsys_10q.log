@@ -1,0 +1,118 @@
+============================================================
+  SIGNAL COLLECTION TEST
+============================================================
+  Server: localhost:30000
+  Samples: 10 MT-Bench questions (2 turns each)
+
+  Sending 10 requests...
+  0%|          | 0/10 [00:00<?, ?it/s] 10%|█         | 1/10 [00:19<02:55, 19.54s/it] 20%|██        | 2/10 [00:29<01:50, 13.86s/it] 30%|███       | 3/10 [00:45<01:42, 14.71s/it] 40%|████      | 4/10 [00:58<01:24, 14.13s/it] 50%|█████     | 5/10 [01:06<01:00, 12.05s/it] 60%|██████    | 6/10 [01:17<00:47, 11.77s/it] 70%|███████   | 7/10 [01:39<00:44, 14.85s/it] 80%|████████  | 8/10 [01:49<00:27, 13.53s/it] 90%|█████████ | 9/10 [02:01<00:12, 12.94s/it]100%|██████████| 10/10 [02:10<00:00, 11.83s/it]100%|██████████| 10/10 [02:10<00:00, 13.09s/it]
+  Done in 130.9s.
+
+────────────────────────────────────────────────────────────
+  SIGNAL STATISTICS
+────────────────────────────────────────────────────────────
+
+  Extracted 7962 signal log entries.
+
+  Signal                           N        Min        Max       Mean        Std
+  ──────────────────────────────────────────────────────────────────────────────
+  draft_entropy                 7962     0.0000     0.0000     0.0000     0.0000
+  top1_prob                     7962     0.0088     1.0000     0.5533     0.3009
+  top1_minus_top2               7962     0.0000     0.0000     0.0000     0.0000
+  hidden_norm                   7962     0.0000     0.0000     0.0000     0.0000
+  hidden_cosine_sim             7962     0.0000     0.0000     0.0000     0.0000
+  hidden_projection_score       7962     0.0000     0.0000     0.0000     0.0000
+  hidden_entropy                7962     0.0000     0.0000     0.0000     0.0000
+  target_entropy                7962     0.0000     0.0000     0.0000     0.0000
+  target_top1_prob              7962     0.2669     1.0000     0.7740     0.1457
+  target_top1_gap               7962     0.0000     0.0000     0.0000     0.0000
+  target_varentropy             7962     0.0000     0.0000     0.0000     0.0000
+  target_hidden_norm            7962     0.0000     0.0000     0.0000     0.0000
+  target_hidden_cosine_sim      7962     0.0000     0.0000     0.0000     0.0000
+  target_projection_score       7962     0.0000     0.0000     0.0000     0.0000
+  target_hidden_entropy         7962     0.0000     0.0000     0.0000     0.0000
+  kl_approx_target_draft        7962     0.0000     0.0000     0.0000     0.0000
+  target_draft_agree            7962     0.0000     0.0000     0.0000     0.0000
+  joint_entropy_gate            7962     0.0000     0.0000     0.0000     0.0000
+  draft_oracle_gate             7962     0.0005     0.8853     0.1763     0.1718
+  target_oracle_gate            7962     0.0000     0.0000     0.0000     0.0000
+  joint_confidence_product      7962     0.0000     0.0000     0.0000     0.0000
+  draft_oracle_gate_fixed       7962     0.0000     0.0000     0.0000     0.0000
+  target_oracle_gate_fixed      7962     0.0030     0.8852     0.2401     0.1700
+  joint_confidence_product_fixed  7962     0.0039     1.0000     0.4367     0.2675
+  confidence_agreement          7962     0.0223     1.0000     0.6926     0.2217
+  rolling_accept_rate           7962     0.0041     0.8853     0.2973     0.1775
+  rolling_accept_length         7962     0.0087     3.9990     0.9066     0.7690
+  confidence                    7962     0.1783     0.8719     0.4082     0.1379
+  chosen_topk                   7962     1.0000     3.0000     1.1483     0.4426
+  chosen_num_steps              7962     2.0000     4.0000     2.5948     0.6431
+  chosen_num_draft_tokens       7962     3.0000     7.0000     3.6905     0.8583
+
+────────────────────────────────────────────────────────────
+  SAMPLE LOGS (first 3 turns with data)
+────────────────────────────────────────────────────────────
+  Turn 0: 808 steps
+    step 0:  {"confidence": 0.34901431385182563, "draft_entropy": 0.0, "top1_prob": 0.3157596290111542, "top1_minus_top2": 0.0, "hidden_norm": 0.0, "hidden_cosine_sim": 0.0, "hidden_projection_score": 0.0, "hidden_entropy": 0.0, "target_entropy": 0.0, "target_top1_prob": 0.4103318452835083, "target_top1_gap": 0.0, "target_varentropy": 0.0, "target_hidden_norm": 0.0, "target_hidden_cosine_sim": 0.0, "target_projection_score": 0.0, "target_hidden_entropy": 0.0, "kl_approx_target_draft": 0.0, "target_draft_agree": 0.0, "joint_entropy_gate": 0.0, "draft_oracle_gate": 0.1578798145055771, "target_oracle_gate": 0.0, "joint_confidence_product": 0.0, "draft_oracle_gate_fixed": 0.0, "target_oracle_gate_fixed": 0.20516592264175415, "joint_confidence_product_fixed": 0.1295662312381829, "confidence_agreement": 0.9054277837276459, "rolling_accept_rate": 0.5, "rolling_accept_length": 2.0, "chosen_topk": 1, "chosen_num_steps": 2, "chosen_num_draft_tokens": 3, "accept_length": 1}
+    step -1: {"confidence": 0.3735192091656214, "draft_entropy": 0.0, "top1_prob": 0.38358446955680847, "top1_minus_top2": 0.0, "hidden_norm": 0.0, "hidden_cosine_sim": 0.0, "hidden_projection_score": 0.0, "hidden_entropy": 0.0, "target_entropy": 0.0, "target_top1_prob": 0.7475030422210693, "target_top1_gap": 0.0, "target_varentropy": 0.0, "target_hidden_norm": 0.0, "target_hidden_cosine_sim": 0.0, "target_projection_score": 0.0, "target_hidden_entropy": 0.0, "kl_approx_target_draft": 0.0, "target_draft_agree": 0.0, "joint_entropy_gate": 0.0, "draft_oracle_gate": 0.1513307151693398, "target_oracle_gate": 0.0, "joint_confidence_product": 0.0, "draft_oracle_gate_fixed": 0.0, "target_oracle_gate_fixed": 0.2949028934911523, "joint_confidence_product_fixed": 0.2867305579424695, "confidence_agreement": 0.6360814273357391, "rolling_accept_rate": 0.3945173154277767, "rolling_accept_length": 0.8719663318377107, "chosen_topk": 1, "chosen_num_steps": 2, "chosen_num_draft_tokens": 3, "accept_length": 1}
+
+  Turn 1: 358 steps
+    step 0:  {"confidence": 0.27170756103219684, "draft_entropy": 0.0, "top1_prob": 0.008832204155623913, "top1_minus_top2": 0.0, "hidden_norm": 0.0, "hidden_cosine_sim": 0.0, "hidden_projection_score": 0.0, "hidden_entropy": 0.0, "target_entropy": 0.0, "target_top1_prob": 0.6510648727416992, "target_top1_gap": 0.0, "target_varentropy": 0.0, "target_hidden_norm": 0.0, "target_hidden_cosine_sim": 0.0, "target_projection_score": 0.0, "target_hidden_entropy": 0.0, "kl_approx_target_draft": 0.0, "target_draft_agree": 0.0, "joint_entropy_gate": 0.0, "draft_oracle_gate": 0.004416102077811956, "target_oracle_gate": 0.0, "joint_confidence_product": 0.0, "draft_oracle_gate_fixed": 0.0, "target_oracle_gate_fixed": 0.3255324363708496, "joint_confidence_product_fixed": 0.00575033787460999, "confidence_agreement": 0.3577673314139247, "rolling_accept_rate": 0.5, "rolling_accept_length": 2.0, "chosen_topk": 1, "chosen_num_steps": 2, "chosen_num_draft_tokens": 3, "accept_length": 0}
+    step -1: {"confidence": 0.7356035607966773, "draft_entropy": 0.0, "top1_prob": 0.95958012342453, "top1_minus_top2": 0.0, "hidden_norm": 0.0, "hidden_cosine_sim": 0.0, "hidden_projection_score": 0.0, "hidden_entropy": 0.0, "target_entropy": 0.0, "target_top1_prob": 0.9514566659927368, "target_top1_gap": 0.0, "target_varentropy": 0.0, "target_hidden_norm": 0.0, "target_hidden_cosine_sim": 0.0, "target_projection_score": 0.0, "target_hidden_entropy": 0.0, "kl_approx_target_draft": 0.0, "target_draft_agree": 0.0, "joint_entropy_gate": 0.0, "draft_oracle_gate": 0.6038317793251964, "target_oracle_gate": 0.0, "joint_confidence_product": 0.0, "draft_oracle_gate_fixed": 0.0, "target_oracle_gate_fixed": 0.5987199583989703, "joint_confidence_product_fixed": 0.9129989049864022, "confidence_agreement": 0.9918765425682068, "rolling_accept_rate": 0.6292666600577905, "rolling_accept_length": 2.4831625945598628, "chosen_topk": 2, "chosen_num_steps": 4, "chosen_num_draft_tokens": 6, "accept_length": 2}
+
+  Turn 2: 336 steps
+    step 0:  {"confidence": 0.31148393568851906, "draft_entropy": 0.0, "top1_prob": 0.09590936452150345, "top1_minus_top2": 0.0, "hidden_norm": 0.0, "hidden_cosine_sim": 0.0, "hidden_projection_score": 0.0, "hidden_entropy": 0.0, "target_entropy": 0.0, "target_top1_prob": 0.7372350692749023, "target_top1_gap": 0.0, "target_varentropy": 0.0, "target_hidden_norm": 0.0, "target_hidden_cosine_sim": 0.0, "target_projection_score": 0.0, "target_hidden_entropy": 0.0, "kl_approx_target_draft": 0.0, "target_draft_agree": 0.0, "joint_entropy_gate": 0.0, "draft_oracle_gate": 0.047954682260751724, "target_oracle_gate": 0.0, "joint_confidence_product": 0.0, "draft_oracle_gate_fixed": 0.0, "target_oracle_gate_fixed": 0.36861753463745117, "joint_confidence_product_fixed": 0.07070774699712246, "confidence_agreement": 0.3586742952466011, "rolling_accept_rate": 0.5, "rolling_accept_length": 2.0, "chosen_topk": 1, "chosen_num_steps": 2, "chosen_num_draft_tokens": 3, "accept_length": 0}
+    step -1: {"confidence": 0.5809463324163865, "draft_entropy": 0.0, "top1_prob": 0.9634053111076355, "top1_minus_top2": 0.0, "hidden_norm": 0.0, "hidden_cosine_sim": 0.0, "hidden_projection_score": 0.0, "hidden_entropy": 0.0, "target_entropy": 0.0, "target_top1_prob": 0.993180513381958, "target_top1_gap": 0.0, "target_varentropy": 0.0, "target_hidden_norm": 0.0, "target_hidden_cosine_sim": 0.0, "target_projection_score": 0.0, "target_hidden_entropy": 0.0, "kl_approx_target_draft": 0.0, "target_draft_agree": 0.0, "joint_entropy_gate": 0.0, "draft_oracle_gate": 0.22788552906139967, "target_oracle_gate": 0.0, "joint_confidence_product": 0.0, "draft_oracle_gate_fixed": 0.0, "target_oracle_gate_fixed": 0.23492860599377927, "joint_confidence_product_fixed": 0.9568353814807864, "confidence_agreement": 0.9702247977256775, "rolling_accept_rate": 0.2365416989443391, "rolling_accept_length": 0.7183621679830239, "chosen_topk": 1, "chosen_num_steps": 3, "chosen_num_draft_tokens": 4, "accept_length": 3}
+
+────────────────────────────────────────────────────────────
+  VERIFICATION
+────────────────────────────────────────────────────────────
+  ── Non-zero checks (active signals) ──
+    [OK]  top1_prob: non-zero in 7962/7962 steps (100.0%)
+    [OK]  target_top1_prob: non-zero in 7962/7962 steps (100.0%)
+    [OK]  draft_oracle_gate: non-zero in 7962/7962 steps (100.0%)
+    [OK]  target_oracle_gate_fixed: non-zero in 7962/7962 steps (100.0%)
+    [OK]  joint_confidence_product_fixed: non-zero in 7962/7962 steps (100.0%)
+    [OK]  confidence_agreement: non-zero in 7962/7962 steps (100.0%)
+    [OK]  rolling_accept_rate: non-zero in 7962/7962 steps (100.0%)
+    [OK]  rolling_accept_length: non-zero in 7962/7962 steps (100.0%)
+  ── Non-zero checks (inactive signals — expected 0.0) ──
+    [OK]  draft_entropy: non-zero in 0/7962 steps (0.0%)
+    [OK]  top1_minus_top2: non-zero in 0/7962 steps (0.0%)
+    [OK]  hidden_norm: non-zero in 0/7962 steps (0.0%)
+    [OK]  hidden_cosine_sim: non-zero in 0/7962 steps (0.0%)
+    [OK]  hidden_projection_score: non-zero in 0/7962 steps (0.0%)
+    [OK]  hidden_entropy: non-zero in 0/7962 steps (0.0%)
+    [OK]  target_entropy: non-zero in 0/7962 steps (0.0%)
+    [OK]  target_top1_gap: non-zero in 0/7962 steps (0.0%)
+    [OK]  target_varentropy: non-zero in 0/7962 steps (0.0%)
+    [OK]  target_hidden_norm: non-zero in 0/7962 steps (0.0%)
+    [OK]  target_hidden_cosine_sim: non-zero in 0/7962 steps (0.0%)
+    [OK]  target_projection_score: non-zero in 0/7962 steps (0.0%)
+    [OK]  target_hidden_entropy: non-zero in 0/7962 steps (0.0%)
+    [OK]  kl_approx_target_draft: non-zero in 0/7962 steps (0.0%)
+    [OK]  target_draft_agree: non-zero in 0/7962 steps (0.0%)
+    [OK]  joint_entropy_gate: non-zero in 0/7962 steps (0.0%)
+    [OK]  target_oracle_gate: non-zero in 0/7962 steps (0.0%)
+    [OK]  joint_confidence_product: non-zero in 0/7962 steps (0.0%)
+    [OK]  draft_oracle_gate_fixed: non-zero in 0/7962 steps (0.0%)
+  ── Variation checks (active signals) ──
+    [OK]  top1_prob: std = 0.300945
+    [OK]  target_top1_prob: std = 0.145714
+    [OK]  draft_oracle_gate: std = 0.171846
+    [OK]  target_oracle_gate_fixed: std = 0.170003
+    [OK]  joint_confidence_product_fixed: std = 0.267472
+    [OK]  confidence_agreement: std = 0.221686
+    [OK]  rolling_accept_rate: std = 0.177486
+    [OK]  rolling_accept_length: std = 0.768971
+  ── Config variation checks ──
+    [OK]  chosen_topk: 3 distinct values: [1, 2, 3]
+    [OK]  chosen_num_steps: 3 distinct values: [2, 3, 4]
+    [OK]  chosen_num_draft_tokens: 5 distinct values: [3, 4, 5, 6, 7]
+  ── Confidence range check ──
+    [OK]  confidence in [0, 1]: min=0.1783 max=0.8719
+
+  Raw data saved to: signal_data_6active_deepseek8b_lmsys_10q.json
+
+============================================================
+  OVERALL: PASS
+============================================================

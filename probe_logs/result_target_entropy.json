@@ -1,0 +1,9 @@
+{
+  "latency": 15.184942049003439,
+  "output_throughput": 211.4594833248463,
+  "accept_length": 3.5285714285714285,
+  "accuracy": null,
+  "num_questions": 5,
+  "num_valid_predictions": 0,
+  "categorical_performance": null
+}

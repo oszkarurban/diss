@@ -1,0 +1,17 @@
+
+CondaError: Run 'conda init' before 'conda activate'
+
+mkdir: cannot create directory ‘logs’: Permission denied
+mkdir: cannot create directory ‘results’: Permission denied
+/home/ou222/miniforge3/bin/python3: Error while finding module specification for 'sglang.launch_server' (ModuleNotFoundError: No module named 'sglang')
+Traceback (most recent call last):
+  File "<string>", line 2, in <module>
+    from sglang.utils import wait_for_server
+ModuleNotFoundError: No module named 'sglang'
+python: can't open file '/var/spool/slurm/slurmd/SpecForge/benchmarks/bench_eagle3.py': [Errno 2] No such file or directory
+/home/ou222/miniforge3/bin/python3: Error while finding module specification for 'sglang.launch_server' (ModuleNotFoundError: No module named 'sglang')
+Traceback (most recent call last):
+  File "<string>", line 2, in <module>
+    from sglang.utils import wait_for_server
+ModuleNotFoundError: No module named 'sglang'
+python: can't open file '/var/spool/slurm/slurmd/SpecForge/benchmarks/bench_eagle3.py': [Errno 2] No such file or directory

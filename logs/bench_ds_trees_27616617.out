@@ -1,0 +1,92 @@
+=== Module list ===
+Currently Loaded Modulefiles:
+ 1) rhel8/slurm   2) singularity/current   3) rhel8/global   4) cuda/12.1  
+
+=== nvcc version ===
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2023 NVIDIA Corporation
+Built on Mon_Apr__3_17:16:06_PDT_2023
+Cuda compilation tools, release 12.1, V12.1.105
+Build cuda_12.1.r12.1/compiler.32688072_0
+=== Module list ===
+Currently Loaded Modulefiles:
+ 1) rhel8/slurm   2) singularity/current   3) rhel8/global   4) cuda/12.1  
+
+=== nvcc version ===
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2023 NVIDIA Corporation
+Built on Mon_Apr__3_17:16:06_PDT_2023
+Cuda compilation tools, release 12.1, V12.1.105
+Build cuda_12.1.r12.1/compiler.32688072_0
+============================================================
+ Tree Benchmarks — deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+ Timestamp: 20260413_231351
+============================================================
+
+>>> [1/2] Vanilla EAGLE3 7,4,8 (tree)
+  Waiting for server (PID 2133597)...
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+
+
+        NOTE: Typically, the server runs in a separate terminal.
+        In this notebook, we run the server and notebook code together, so their outputs are combined.
+        To improve clarity, the server logs are displayed in the original black color, while the notebook outputs are highlighted in blue.
+        To reduce the log length, we set the log level to warning for the server, the default log level is info.
+        We are running those notebooks in a CI environment, so the throughput is not representative of the actual performance.
+        
+  Server ready.
+  Running benchmarks: vanilla_748
+    >>> mtbench:80
+Running benchmark mtbench with 80 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+Results saved to ./results/deepseek_vanilla_748_20260413_231351_results_20260414_000100.jsonl
+    >>> gsm8k:200
+Running benchmark gsm8k with 200 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+Results saved to ./results/deepseek_vanilla_748_20260413_231351_results_20260414_000715.jsonl
+    >>> math500:200
+Running benchmark math500 with 200 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+Results saved to ./results/deepseek_vanilla_748_20260413_231351_results_20260414_004619.jsonl
+    >>> humaneval:164
+Running benchmark humaneval with 164 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+Results saved to ./results/deepseek_vanilla_748_20260413_231351_results_20260414_010717.jsonl
+    >>> livecodebench:200
+Running benchmark livecodebench with 200 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+Results saved to ./results/deepseek_vanilla_748_20260413_231351_results_20260414_015643.jsonl
+  Killing server (PID 2133597)...
+
+>>> [2/2] Vanilla EAGLE3 10,6,60 (TALON-scale tree)
+  Waiting for server (PID 2173075)...
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+
+
+        NOTE: Typically, the server runs in a separate terminal.
+        In this notebook, we run the server and notebook code together, so their outputs are combined.
+        To improve clarity, the server logs are displayed in the original black color, while the notebook outputs are highlighted in blue.
+        To reduce the log length, we set the log level to warning for the server, the default log level is info.
+        We are running those notebooks in a CI environment, so the throughput is not representative of the actual performance.
+        
+  Server ready.
+  Running benchmarks: vanilla_10_6_60
+    >>> mtbench:80
+Running benchmark mtbench with 80 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+Results saved to ./results/deepseek_vanilla_10_6_60_20260413_231351_results_20260414_024250.jsonl
+    >>> gsm8k:200
+Running benchmark gsm8k with 200 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+Results saved to ./results/deepseek_vanilla_10_6_60_20260413_231351_results_20260414_025003.jsonl
+    >>> math500:200
+Running benchmark math500 with 200 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+Results saved to ./results/deepseek_vanilla_10_6_60_20260413_231351_results_20260414_032053.jsonl
+    >>> humaneval:164
+Running benchmark humaneval with 164 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+Results saved to ./results/deepseek_vanilla_10_6_60_20260413_231351_results_20260414_033902.jsonl
+    >>> livecodebench:200
+Running benchmark livecodebench with 200 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+Results saved to ./results/deepseek_vanilla_10_6_60_20260413_231351_results_20260414_042517.jsonl
+  Killing server (PID 2173075)...
+
+============================================================
+ TREE BENCHMARKS COMPLETE — deepseek
+============================================================

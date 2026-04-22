@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/rds/user/ou222/hpc-work/diss/sglang/python/sglang/launch_server.py", line 7, in <module>
+    from sglang.srt.server_args import prepare_server_args
+  File "/rds/user/ou222/hpc-work/diss/sglang/python/sglang/srt/server_args.py", line 29, in <module>
+    from sglang.srt.connector import ConnectorType
+  File "/rds/user/ou222/hpc-work/diss/sglang/python/sglang/srt/connector/__init__.py", line 6, in <module>
+    from sglang.srt.connector.base_connector import (
+  File "/rds/user/ou222/hpc-work/diss/sglang/python/sglang/srt/connector/base_connector.py", line 10, in <module>
+    import torch
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/site-packages/torch/__init__.py", line 426, in <module>
+    _load_global_deps()
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/site-packages/torch/__init__.py", line 351, in _load_global_deps
+    _preload_cuda_deps("nvjitlink", "libnvJitLink.so.*[0-9]")
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/site-packages/torch/__init__.py", line 319, in _preload_cuda_deps
+    ctypes.CDLL(lib_path)
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/ctypes/__init__.py", line 374, in __init__
+    self._handle = _dlopen(self._name, mode)
+KeyboardInterrupt

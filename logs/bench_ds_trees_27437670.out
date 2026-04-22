@@ -1,0 +1,65 @@
+=== Module list ===
+Currently Loaded Modulefiles:
+ 1) rhel8/slurm   2) singularity/current   3) rhel8/global   4) cuda/12.1  
+
+=== nvcc version ===
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2023 NVIDIA Corporation
+Built on Mon_Apr__3_17:16:06_PDT_2023
+Cuda compilation tools, release 12.1, V12.1.105
+Build cuda_12.1.r12.1/compiler.32688072_0
+============================================================
+ Tree Benchmarks — deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+ Timestamp: 20260411_093009
+============================================================
+
+>>> [1/2] Vanilla EAGLE3 7,4,8 (tree)
+  Waiting for server (PID 3169943)...
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+
+
+        NOTE: Typically, the server runs in a separate terminal.
+        In this notebook, we run the server and notebook code together, so their outputs are combined.
+        To improve clarity, the server logs are displayed in the original black color, while the notebook outputs are highlighted in blue.
+        To reduce the log length, we set the log level to warning for the server, the default log level is info.
+        We are running those notebooks in a CI environment, so the throughput is not representative of the actual performance.
+        
+  Server ready.
+  Running benchmarks: vanilla_748
+Running benchmark mtbench with 80 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+Running benchmark gsm8k with 200 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+Downloading from https://raw.githubusercontent.com/openai/grade-school-math/master/grade_school_math/data/test.jsonl to /tmp/test.jsonl
+Running benchmark math500 with 200 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+Running benchmark humaneval with 164 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+Running benchmark livecodebench with 200 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+Running benchmark gpqa with 200 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+  Killing server (PID 3169943)...
+
+>>> [2/2] Vanilla EAGLE3 10,6,60 (TALON-scale tree)
+  Waiting for server (PID 3235816)...
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+
+
+        NOTE: Typically, the server runs in a separate terminal.
+        In this notebook, we run the server and notebook code together, so their outputs are combined.
+        To improve clarity, the server logs are displayed in the original black color, while the notebook outputs are highlighted in blue.
+        To reduce the log length, we set the log level to warning for the server, the default log level is info.
+        We are running those notebooks in a CI environment, so the throughput is not representative of the actual performance.
+        
+  Server ready.
+  Running benchmarks: vanilla_10_6_60
+Running benchmark mtbench with 80 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+Running benchmark gsm8k with 200 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+Running benchmark math500 with 200 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+Running benchmark humaneval with 164 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+Running benchmark livecodebench with 200 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+Running benchmark gpqa with 200 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+  Killing server (PID 3235816)...
+
+============================================================
+ TREE BENCHMARKS COMPLETE — deepseek
+============================================================

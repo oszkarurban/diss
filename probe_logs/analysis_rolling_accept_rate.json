@@ -1,0 +1,65 @@
+{
+  "source_log": "probe_logs/signals_rolling_accept_rate.jsonl",
+  "n_records": 439,
+  "signals": {
+    "draft_entropy": {
+      "n": 0
+    },
+    "top1_prob": {
+      "n": 0
+    },
+    "top1_minus_top2": {
+      "n": 0
+    },
+    "hidden_norm": {
+      "n": 0
+    },
+    "path_score": {
+      "n": 0
+    },
+    "target_entropy": {
+      "n": 0
+    },
+    "entropy_gap": {
+      "n": 0
+    },
+    "rolling_accept_rate": {
+      "n": 437,
+      "min": 0.36,
+      "max": 1.0,
+      "mean": 0.45331682436027565,
+      "std": 0.06643997048008383,
+      "corr_accept": null
+    }
+  },
+  "tier_balance": {
+    "total": 439,
+    "high_n": 6,
+    "high_pct": 1.37,
+    "mid_n": 433,
+    "mid_pct": 98.63,
+    "low_n": 0,
+    "low_pct": 0.0
+  },
+  "chosen_steps": [
+    3,
+    5
+  ],
+  "chosen_dtn": [
+    4,
+    6
+  ],
+  "accept_rate": {
+    "n": 439,
+    "mean": 0.5899772209567198,
+    "std": 0.397818366574592,
+    "min": 0.0,
+    "max": 1.0,
+    "bins": {
+      "0_25": 98,
+      "25_50": 85,
+      "50_75": 78,
+      "75_100": 178
+    }
+  }
+}

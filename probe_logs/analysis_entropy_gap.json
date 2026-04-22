@@ -1,0 +1,68 @@
+{
+  "source_log": "probe_logs/signals_entropy_gap.jsonl",
+  "n_records": 409,
+  "signals": {
+    "draft_entropy": {
+      "n": 249,
+      "min": 0.13141888519749045,
+      "max": 4.230696678161621,
+      "mean": 1.8520219793793817,
+      "std": 0.7910066142608122,
+      "corr_accept": null
+    },
+    "top1_prob": {
+      "n": 0
+    },
+    "top1_minus_top2": {
+      "n": 0
+    },
+    "hidden_norm": {
+      "n": 0
+    },
+    "path_score": {
+      "n": 0
+    },
+    "target_entropy": {
+      "n": 409,
+      "min": 3.438780186115764e-05,
+      "max": 2.6116244792938232,
+      "mean": 0.564526048385584,
+      "std": 0.34994159801564695,
+      "corr_accept": null
+    },
+    "entropy_gap": {
+      "n": 249,
+      "min": -0.26600074768066406,
+      "max": 3.304299533367157,
+      "mean": 1.2774787388702697,
+      "std": 0.6543594424543321,
+      "corr_accept": null
+    },
+    "rolling_accept_rate": {
+      "n": 407,
+      "min": 0.3764705882352941,
+      "max": 1.0,
+      "mean": 0.5409924103372162,
+      "std": 0.06822753234349113,
+      "corr_accept": null
+    }
+  },
+  "tier_balance": {
+    "total": 409,
+    "high_n": 160,
+    "high_pct": 39.12,
+    "mid_n": 249,
+    "mid_pct": 60.88,
+    "low_n": 0,
+    "low_pct": 0.0
+  },
+  "chosen_steps": [
+    3,
+    5
+  ],
+  "chosen_dtn": [
+    4,
+    6
+  ],
+  "accept_rate": {}
+}

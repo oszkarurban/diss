@@ -1,0 +1,103 @@
+Running benchmark mtbench with 80 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+  0%|          | 0/80 [00:00<?, ?it/s]/rds/user/ou222/hpc-work/diss/sglang/python/sglang/lang/interpreter.py:410: UserWarning: Error in stream_executor: Traceback (most recent call last):
+  File "/rds/user/ou222/hpc-work/diss/sglang/python/sglang/lang/interpreter.py", line 408, in _thread_worker_func
+    self._execute(expr)
+  File "/rds/user/ou222/hpc-work/diss/sglang/python/sglang/lang/interpreter.py", line 451, in _execute
+    self._execute(x)
+  File "/rds/user/ou222/hpc-work/diss/sglang/python/sglang/lang/interpreter.py", line 446, in _execute
+    self._execute_gen(other)
+  File "/rds/user/ou222/hpc-work/diss/sglang/python/sglang/lang/interpreter.py", line 574, in _execute_gen
+    comp, meta_info = self.backend.generate(
+  File "/rds/user/ou222/hpc-work/diss/sglang/python/sglang/lang/backend/runtime_endpoint.py", line 186, in generate
+    res = http_request(
+  File "/rds/user/ou222/hpc-work/diss/sglang/python/sglang/utils.py", line 192, in http_request
+    resp = urllib.request.urlopen(req, data=data, cafile=verify)
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/urllib/request.py", line 216, in urlopen
+    return opener.open(url, data, timeout)
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/urllib/request.py", line 519, in open
+    response = self._open(req, data)
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/urllib/request.py", line 536, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/urllib/request.py", line 496, in _call_chain
+    result = func(*args)
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/urllib/request.py", line 1377, in http_open
+    return self.do_open(http.client.HTTPConnection, req)
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/urllib/request.py", line 1352, in do_open
+    r = h.getresponse()
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/http/client.py", line 1395, in getresponse
+    response.begin()
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/http/client.py", line 323, in begin
+    version, status, reason = self._read_status()
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/http/client.py", line 292, in _read_status
+    raise RemoteDisconnected("Remote end closed connection without"
+http.client.RemoteDisconnected: Remote end closed connection without response
+
+  warnings.warn(f"Error in stream_executor: {get_exception_traceback()}")
+  1%|▏         | 1/80 [00:00<01:10,  1.12it/s]/rds/user/ou222/hpc-work/diss/sglang/python/sglang/lang/interpreter.py:410: UserWarning: Error in stream_executor: Traceback (most recent call last):
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/urllib/request.py", line 1348, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/http/client.py", line 1303, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/http/client.py", line 1349, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/http/client.py", line 1298, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/http/client.py", line 1058, in _send_output
+    self.send(msg)
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/http/client.py", line 996, in send
+    self.connect()
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/http/client.py", line 962, in connect
+    self.sock = self._create_connection(
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/socket.py", line 857, in create_connection
+    raise err
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/socket.py", line 845, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/rds/user/ou222/hpc-work/diss/sglang/python/sglang/lang/interpreter.py", line 408, in _thread_worker_func
+    self._execute(expr)
+  File "/rds/user/ou222/hpc-work/diss/sglang/python/sglang/lang/interpreter.py", line 451, in _execute
+    self._execute(x)
+  File "/rds/user/ou222/hpc-work/diss/sglang/python/sglang/lang/interpreter.py", line 446, in _execute
+    self._execute_gen(other)
+  File "/rds/user/ou222/hpc-work/diss/sglang/python/sglang/lang/interpreter.py", line 574, in _execute_gen
+    comp, meta_info = self.backend.generate(
+  File "/rds/user/ou222/hpc-work/diss/sglang/python/sglang/lang/backend/runtime_endpoint.py", line 186, in generate
+    res = http_request(
+  File "/rds/user/ou222/hpc-work/diss/sglang/python/sglang/utils.py", line 192, in http_request
+    resp = urllib.request.urlopen(req, data=data, cafile=verify)
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/urllib/request.py", line 216, in urlopen
+    return opener.open(url, data, timeout)
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/urllib/request.py", line 519, in open
+    response = self._open(req, data)
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/urllib/request.py", line 536, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/urllib/request.py", line 496, in _call_chain
+    result = func(*args)
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/urllib/request.py", line 1377, in http_open
+    return self.do_open(http.client.HTTPConnection, req)
+  File "/rds/user/ou222/hpc-work/conda/envs/sglang-dev/lib/python3.10/urllib/request.py", line 1351, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [Errno 111] Connection refused>
+
+  warnings.warn(f"Error in stream_executor: {get_exception_traceback()}")
+100%|██████████| 80/80 [00:00<00:00, 83.44it/s]
+Traceback (most recent call last):
+  File "/rds/user/ou222/hpc-work/diss/./SpecForge/benchmarks/bench_eagle3.py", line 268, in <module>
+    main()
+  File "/rds/user/ou222/hpc-work/diss/./SpecForge/benchmarks/bench_eagle3.py", line 238, in main
+    run_benchmarks(batch_size, None, None, None)
+  File "/rds/user/ou222/hpc-work/diss/./SpecForge/benchmarks/bench_eagle3.py", line 219, in run_benchmarks
+    metrics_list = benchmarker.run(
+  File "/rds/user/ou222/hpc-work/diss/SpecForge/benchmarks/benchmarker/base.py", line 171, in run
+    output = states[i][primary_answer_key]
+  File "/rds/user/ou222/hpc-work/diss/sglang/python/sglang/lang/interpreter.py", line 993, in __getitem__
+    return self.get_var(name)
+  File "/rds/user/ou222/hpc-work/diss/sglang/python/sglang/lang/interpreter.py", line 978, in get_var
+    return self.stream_executor.get_var(name)
+  File "/rds/user/ou222/hpc-work/diss/sglang/python/sglang/lang/interpreter.py", line 333, in get_var
+    return self.variables[name]
+KeyError: 'answer_1'

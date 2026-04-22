@@ -1,0 +1,44 @@
+============================================================
+  SIGNAL COLLECTION TEST
+============================================================
+  Server: localhost:30000
+  Samples: 5 MT-Bench questions (2 turns each)
+
+  Sending 5 requests...
+  0%|          | 0/5 [00:00<?, ?it/s] 20%|██        | 1/5 [00:02<00:11,  2.99s/it] 40%|████      | 2/5 [00:04<00:05,  1.91s/it] 60%|██████    | 3/5 [00:04<00:02,  1.31s/it] 80%|████████  | 4/5 [00:06<00:01,  1.34s/it]100%|██████████| 5/5 [00:08<00:00,  1.79s/it]100%|██████████| 5/5 [00:08<00:00,  1.74s/it]
+  Done in 8.8s.
+
+────────────────────────────────────────────────────────────
+  SIGNAL STATISTICS
+────────────────────────────────────────────────────────────
+
+  Extracted 0 signal log entries.
+
+  Signal                           N        Min        Max       Mean        Std
+  ──────────────────────────────────────────────────────────────────────────────
+  draft_entropy                    0       —        —        —        —
+  top1_prob                        0       —        —        —        —
+  top1_minus_top2                  0       —        —        —        —
+  hidden_norm                      0       —        —        —        —
+  target_entropy                   0       —        —        —        —
+  entropy_gap                      0       —        —        —        —
+  rolling_accept_rate              0       —        —        —        —
+  confidence                       0       —        —        —        —
+  chosen_topk                      0       —        —        —        —
+  chosen_num_steps                 0       —        —        —        —
+  chosen_num_draft_tokens          0       —        —        —        —
+
+────────────────────────────────────────────────────────────
+  SAMPLE LOGS (first 3 turns with data)
+────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────
+  VERIFICATION
+────────────────────────────────────────────────────────────
+  [FAIL] No signal log entries collected at all!
+         Is the server running with --enable-dynamic-speculative-decoding?
+
+  Raw data saved to: signal_data_mismatch.json
+
+============================================================
+  OVERALL: FAIL
+============================================================

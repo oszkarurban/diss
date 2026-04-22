@@ -1,0 +1,1214 @@
+diff --git a/python/sglang/srt/managers/detokenizer_manager.py b/python/sglang/srt/managers/detokenizer_manager.py
+index 834ae2287..664c6b8e0 100644
+--- a/python/sglang/srt/managers/detokenizer_manager.py
++++ b/python/sglang/srt/managers/detokenizer_manager.py
+@@ -389,6 +389,7 @@ class DetokenizerManager(MultiHttpWorkerDetokenizerMixin):
+             spec_logged_threshold_single=recv_obj.spec_logged_threshold_single,
+             spec_retrive_next_token=recv_obj.spec_retrive_next_token,
+             spec_retrive_next_sibling=recv_obj.spec_retrive_next_sibling,
++            spec_signal_log=recv_obj.spec_signal_log,
+             input_token_logprobs_val=recv_obj.input_token_logprobs_val,
+             input_token_logprobs_idx=recv_obj.input_token_logprobs_idx,
+             output_token_logprobs_val=recv_obj.output_token_logprobs_val,
+diff --git a/python/sglang/srt/managers/io_struct.py b/python/sglang/srt/managers/io_struct.py
+index 66e900a35..db82fcf95 100644
+--- a/python/sglang/srt/managers/io_struct.py
++++ b/python/sglang/srt/managers/io_struct.py
+@@ -102,6 +102,7 @@ class SpeculativeDecodingMetricsMixin:
+     spec_logged_threshold_single: List[List[float]]        # [req][step]
+     spec_retrive_next_token: List[List[List[int]]]         # [req][step][token] child pointers
+     spec_retrive_next_sibling: List[List[List[int]]]       # [req][step][token] sibling pointers
++    spec_signal_log: List[List[dict]]                      # [req][step] dynamic spec signals + chosen config
+ 
+ 
+ # Parameters for a session
+diff --git a/python/sglang/srt/managers/multi_tokenizer_mixin.py b/python/sglang/srt/managers/multi_tokenizer_mixin.py
+index 3d29f68e5..9f6878ad0 100644
+--- a/python/sglang/srt/managers/multi_tokenizer_mixin.py
++++ b/python/sglang/srt/managers/multi_tokenizer_mixin.py
+@@ -142,6 +142,7 @@ def _handle_output_by_index(output, i):
+             spec_logged_threshold_single=_extract_field_by_index(output, "spec_logged_threshold_single", i),
+             spec_retrive_next_token=_extract_field_by_index(output, "spec_retrive_next_token", i),
+             spec_retrive_next_sibling=_extract_field_by_index(output, "spec_retrive_next_sibling", i),
++            spec_signal_log=_extract_field_by_index(output, "spec_signal_log", i),
+             time_stats=_extract_field_by_index(output, "time_stats", i),
+             finished_reasons=_extract_field_by_index(output, "finished_reasons", i),
+             decoded_texts=_extract_field_by_index(output, "decoded_texts", i),
+@@ -239,6 +240,7 @@ def _handle_output_by_index(output, i):
+             spec_logged_threshold_single=_extract_field_by_index(output, "spec_logged_threshold_single", i),
+             spec_retrive_next_token=_extract_field_by_index(output, "spec_retrive_next_token", i),
+             spec_retrive_next_sibling=_extract_field_by_index(output, "spec_retrive_next_sibling", i),
++            spec_signal_log=_extract_field_by_index(output, "spec_signal_log", i),
+ 
+             time_stats=_extract_field_by_index(output, "time_stats", i),
+             finished_reasons=_extract_field_by_index(output, "finished_reasons", i),
+diff --git a/python/sglang/srt/managers/schedule_batch.py b/python/sglang/srt/managers/schedule_batch.py
+index 837d98633..21979f674 100644
+--- a/python/sglang/srt/managers/schedule_batch.py
++++ b/python/sglang/srt/managers/schedule_batch.py
+@@ -811,6 +811,10 @@ class Req(ReqDllmMixin):
+         self.spec_logged_draft_token_num: List[int] = []
+         self.spec_logged_threshold_single: List[float] = []
+ 
++        # Dynamic speculative decoding
++        self.rolling_accept_rate: float = 1.0  # EMA, init optimistic
++        self.spec_signal_log: List[Dict] = []  # per-step signal + config log
++
+ 
+     @property
+     def seqlen(self) -> int:
+diff --git a/python/sglang/srt/managers/scheduler_output_processor_mixin.py b/python/sglang/srt/managers/scheduler_output_processor_mixin.py
+index 91bcddb9b..ed79bdeb5 100644
+--- a/python/sglang/srt/managers/scheduler_output_processor_mixin.py
++++ b/python/sglang/srt/managers/scheduler_output_processor_mixin.py
+@@ -916,6 +916,7 @@ class SchedulerOutputProcessorMixin:
+         spec_logged_threshold_single = []
+         spec_retrive_next_token = []
+         spec_retrive_next_sibling = []
++        spec_signal_log = []
+ 
+         retraction_counts = []
+         output_hidden_states = None
+@@ -1046,6 +1047,7 @@ class SchedulerOutputProcessorMixin:
+                     spec_logged_threshold_single.append(req.spec_logged_threshold_single)
+                     spec_retrive_next_token.append(req.spec_retrive_next_token)
+                     spec_retrive_next_sibling.append(req.spec_retrive_next_sibling)
++                    spec_signal_log.append(req.spec_signal_log)
+ 
+                 if return_logprob:
+                     if (
+@@ -1160,6 +1162,7 @@ class SchedulerOutputProcessorMixin:
+                     spec_logged_threshold_single=spec_logged_threshold_single,
+                     spec_retrive_next_token=spec_retrive_next_token,
+                     spec_retrive_next_sibling=spec_retrive_next_sibling,
++                    spec_signal_log=spec_signal_log,
+                     time_stats=time_stats,
+                     finished_reasons=finished_reasons,
+                     decoded_texts=decoded_texts,
+diff --git a/python/sglang/srt/managers/tokenizer_manager.py b/python/sglang/srt/managers/tokenizer_manager.py
+index bcc0fa4f3..70ab54ff6 100644
+--- a/python/sglang/srt/managers/tokenizer_manager.py
++++ b/python/sglang/srt/managers/tokenizer_manager.py
+@@ -1921,6 +1921,7 @@ class TokenizerManager(TokenizerCommunicatorMixin, TokenizerManagerMultiItemMixi
+                 meta_info["spec_threshold_single"] = recv_obj.spec_logged_threshold_single[i]
+                 meta_info["spec_retrive_next_token"] = recv_obj.spec_retrive_next_token[i]
+                 meta_info["spec_retrive_next_sibling"] = recv_obj.spec_retrive_next_sibling[i]
++                meta_info["spec_signal_log"] = recv_obj.spec_signal_log[i]
+ 
+     def _request_has_grammar(self, obj: GenerateReqInput) -> bool:
+         return (
+diff --git a/python/sglang/srt/server_args.py b/python/sglang/srt/server_args.py
+index e98dd6082..c7e3887a3 100644
+--- a/python/sglang/srt/server_args.py
++++ b/python/sglang/srt/server_args.py
+@@ -506,6 +506,12 @@ class ServerArgs:
+     speculative_ngram_capacity: int = 10 * 1000 * 1000
+     enable_multi_layer_eagle: bool = False
+ 
++    # Dynamic speculative decoding
++    enable_dynamic_speculative_decoding: bool = False
++    speculative_num_steps_max: Optional[int] = None
++    speculative_eagle_topk_max: Optional[int] = None
++    speculative_num_draft_tokens_max: Optional[int] = None
++
+     # Expert parallelism
+     ep_size: int = 1
+     moe_a2a_backend: Literal[
+@@ -2876,6 +2882,41 @@ class ServerArgs:
+                 )
+                 self.speculative_num_draft_tokens = self.speculative_num_steps + 1
+ 
++            # Dynamic speculative decoding validation
++            if self.enable_dynamic_speculative_decoding:
++                if self.speculative_num_steps_max is None:
++                    self.speculative_num_steps_max = self.speculative_num_steps
++                if self.speculative_eagle_topk_max is None:
++                    self.speculative_eagle_topk_max = self.speculative_eagle_topk
++                if self.speculative_num_draft_tokens_max is None:
++                    self.speculative_num_draft_tokens_max = (
++                        self.speculative_num_draft_tokens
++                    )
++                assert self.speculative_num_steps_max >= self.speculative_num_steps, (
++                    f"speculative_num_steps_max ({self.speculative_num_steps_max}) "
++                    f"must be >= speculative_num_steps ({self.speculative_num_steps})"
++                )
++                assert self.speculative_eagle_topk_max >= self.speculative_eagle_topk, (
++                    f"speculative_eagle_topk_max ({self.speculative_eagle_topk_max}) "
++                    f"must be >= speculative_eagle_topk ({self.speculative_eagle_topk})"
++                )
++                assert self.speculative_num_draft_tokens_max >= self.speculative_num_draft_tokens, (
++                    f"speculative_num_draft_tokens_max ({self.speculative_num_draft_tokens_max}) "
++                    f"must be >= speculative_num_draft_tokens ({self.speculative_num_draft_tokens})"
++                )
++                assert self.speculative_num_steps_max >= 1
++                assert self.speculative_eagle_topk_max >= 1
++                assert self.speculative_num_draft_tokens_max >= 2
++                logger.info(
++                    f"Dynamic speculative decoding enabled. "
++                    f"Configs: topk=[1..{self.speculative_eagle_topk_max}], "
++                    f"num_steps=[1..{self.speculative_num_steps_max}], "
++                    f"num_draft_tokens=[2..{self.speculative_num_draft_tokens_max}]. "
++                    f"Starting at topk={self.speculative_eagle_topk}, "
++                    f"num_steps={self.speculative_num_steps}, "
++                    f"num_draft_tokens={self.speculative_num_draft_tokens}."
++                )
++
+             if (
+                 self.speculative_eagle_topk > 1
+                 and self.page_size > 1
+@@ -4606,6 +4647,35 @@ class ServerArgs:
+             help="Enable multi-layer Eagle speculative decoding.",
+         )
+ 
++        # Dynamic speculative decoding
++        parser.add_argument(
++            "--enable-dynamic-speculative-decoding",
++            action="store_true",
++            help="Enable dynamic adjustment of speculation parameters "
++            "(topk, num_steps, num_draft_tokens) based on runtime signals.",
++        )
++        parser.add_argument(
++            "--speculative-num-steps-max",
++            type=int,
++            default=None,
++            help="Maximum speculative_num_steps for dynamic spec. "
++            "CUDA graphs are captured for all values in [1, max].",
++        )
++        parser.add_argument(
++            "--speculative-eagle-topk-max",
++            type=int,
++            default=None,
++            help="Maximum speculative_eagle_topk for dynamic spec. "
++            "CUDA graphs are captured for all values in [1, max].",
++        )
++        parser.add_argument(
++            "--speculative-num-draft-tokens-max",
++            type=int,
++            default=None,
++            help="Maximum speculative_num_draft_tokens for dynamic spec. "
++            "Adjusted dynamically without CUDA graph changes.",
++        )
++
+         # Expert parallelism
+         parser.add_argument(
+             "--expert-parallel-size",
+diff --git a/python/sglang/srt/speculative/dynamic_spec_config.py b/python/sglang/srt/speculative/dynamic_spec_config.py
+deleted file mode 100644
+index 7af9e8d0d..000000000
+--- a/python/sglang/srt/speculative/dynamic_spec_config.py
++++ /dev/null
+@@ -1,318 +0,0 @@
+-# """
+-# python/sglang/srt/speculative/dynamic_spec_config.py
+-
+-# CUDA graph capture safety
+-# --------------------------
+-# Any .item() or .cpu() call inside a CUDA graph capture window raises:
+-#   "CUDA error: operation not permitted when stream is capturing"
+-# Every collect_* method calls _is_capturing() first and returns immediately
+-# if inside a capture. Signal collection only runs during real inference.
+-# """
+-
+-# from __future__ import annotations
+-
+-# import json
+-# import logging
+-# import math
+-# import os
+-# from dataclasses import dataclass, field
+-# from typing import List, Optional, Tuple
+-
+-# import torch
+-
+-# logger = logging.getLogger(__name__)
+-
+-
+-# def _is_capturing() -> bool:
+-#     try:
+-#         return torch.cuda.is_current_stream_capturing()
+-#     except Exception:
+-#         return False
+-
+-
+-# @dataclass
+-# class DynamicSpecConfig:
+-#     # ── master switch ────────────────────────────────────────────────────────
+-#     enabled: bool = False
+-
+-#     # ── vocab size (required) ────────────────────────────────────────────────
+-#     # Pass vocab_size=model_config.vocab_size from EAGLEWorker.__init__
+-#     # max_entropy_ref = log(vocab_size) is computed in __post_init__
+-#     vocab_size: int = 128000
+-#     max_entropy_ref: float = field(init=False, repr=True)
+-
+-#     # ── tree shape policy ─────────────────────────────────────────────────────
+-#     # Bidirectional 3-tier policy: steps and dtn are independent variables.
+-#     # All values set by eagle_worker.py at init from server_args.
+-#     baseline_steps: Optional[int] = None   # ← --speculative-num-steps-startpoint
+-#     baseline_dtn:   Optional[int] = None   # ← --speculative-num-draft-tokens-startpoint
+-#     max_steps:      Optional[int] = None   # ← --speculative-num-steps (server max)
+-#     max_dtn:        Optional[int] = None   # ← --speculative-num-draft-tokens (server max)
+-#     topk:           Optional[int] = None   # ← --speculative-eagle-topk (fixed at runtime)
+-
+-#     # ── policy thresholds ─────────────────────────────────────────────────────
+-#     # Set AFTER running probe_signal_ranges.py.
+-#     high_conf_threshold: float = 0.35
+-#     low_conf_threshold:  float = 0.65
+-
+-#     # ── which signals to collect ─────────────────────────────────────────────
+-#     draft_entropy:       bool = True
+-#     top1_prob:           bool = True
+-#     top1_minus_top2:     bool = True
+-#     hidden_norm:         bool = True
+-#     path_score:          bool = True
+-#     target_entropy:      bool = True
+-#     entropy_gap:         bool = True
+-#     rolling_accept_rate: bool = True
+-#     rolling_window:      int  = 8
+-
+-#     # ── signal logging ────────────────────────────────────────────────────────
+-#     # When set, decide() appends one JSONL line per verify call to this file.
+-#     # Pass via --dynamic-spec-config '{"signal_log_path": "probe_logs/run.jsonl", ...}'
+-#     signal_log_path: Optional[str] = None
+-
+-#     # ── combination weights — equal until empirically tuned ──────────────────
+-#     weight_draft_entropy:       float = 1.0
+-#     weight_top1_prob:           float = 1.0
+-#     weight_top1_minus_top2:     float = 1.0
+-#     weight_hidden_norm:         float = 1.0
+-#     weight_path_score:          float = 1.0
+-#     weight_target_entropy:      float = 1.0
+-#     weight_entropy_gap:         float = 1.0
+-#     weight_rolling_accept_rate: float = 1.0
+-
+-#     # ── per-step state (reset each verify step) ───────────────────────────────
+-#     _draft_entropies:  List[float] = field(default_factory=list, repr=False)
+-#     _top1_probs:       List[float] = field(default_factory=list, repr=False)
+-#     _top1_margins:     List[float] = field(default_factory=list, repr=False)
+-#     _hidden_norms:     List[float] = field(default_factory=list, repr=False)
+-#     _path_score:       Optional[float] = field(default=None, repr=False)
+-#     _target_entropy:   Optional[float] = field(default=None, repr=False)
+-#     _step_accept_rate: Optional[float] = field(default=None, repr=False)
+-
+-#     def __post_init__(self):
+-#         self.max_entropy_ref = math.log(self.vocab_size)
+-
+-#     # ── public API ────────────────────────────────────────────────────────────
+-
+-#     def reset(self):
+-#         """Call at the start of each verify step to clear per-step state."""
+-#         self._draft_entropies.clear()
+-#         self._top1_probs.clear()
+-#         self._top1_margins.clear()
+-#         self._hidden_norms.clear()
+-#         self._path_score = None
+-#         self._target_entropy = None
+-#         self._step_accept_rate = None
+-
+-#     def collect_draft_signals(
+-#         self,
+-#         probs: torch.Tensor,          # (bs*topk, vocab) after softmax
+-#         hidden_states: torch.Tensor,  # (bs*topk, hidden)
+-#         step_i: int,
+-#     ):
+-#         """
+-#         Call in draft_forward() after each softmax, before fast_topk.
+-#         Returns immediately during CUDA graph capture — safe to call always.
+-#         """
+-#         if not self.enabled:
+-#             return
+-#         if _is_capturing():          # ← CUDA graph capture guard
+-#             return
+-#         with torch.no_grad():
+-#             if self.draft_entropy or self.entropy_gap:
+-#                 ent = -(probs * torch.log(probs + 1e-10)).sum(dim=-1).mean().item()
+-#                 self._draft_entropies.append(ent)
+-#             if self.top1_prob:
+-#                 self._top1_probs.append(probs.max(dim=-1).values.mean().item())
+-#             if self.top1_minus_top2 and probs.shape[-1] >= 2:
+-#                 top2 = probs.topk(2, dim=-1).values
+-#                 self._top1_margins.append((top2[:, 0] - top2[:, 1]).mean().item())
+-#             if self.hidden_norm:
+-#                 self._hidden_norms.append(hidden_states.norm(dim=-1).mean().item())
+-
+-#     def collect_path_score(self, score_list_flat: torch.Tensor):
+-#         """
+-#         Call in organize_draft_results() after flattening, before topk.
+-#         Returns immediately during CUDA graph capture — safe to call always.
+-#         """
+-#         if not self.enabled or not self.path_score:
+-#             return
+-#         if _is_capturing():          # ← CUDA graph capture guard
+-#             return
+-#         with torch.no_grad():
+-#             self._path_score = score_list_flat.max(dim=-1).values.mean().item()
+-
+-#     def collect_target_signals(
+-#         self,
+-#         logits: torch.Tensor,  # (bs * draft_token_num, vocab)
+-#         bs: int,
+-#         draft_token_num: int,
+-#     ):
+-#         """
+-#         Call in verify() after target forward, before accept/reject.
+-#         Returns immediately during CUDA graph capture — safe to call always.
+-#         """
+-#         if not self.enabled:
+-#             return
+-#         if not (self.target_entropy or self.entropy_gap):
+-#             return
+-#         if _is_capturing():          # ← CUDA graph capture guard
+-#             return
+-#         with torch.no_grad():
+-#             probs = torch.softmax(logits.float(), dim=-1)
+-#             self._target_entropy = (
+-#                 -(probs * torch.log(probs + 1e-10)).sum(dim=-1).mean().item()
+-#             )
+-
+-#     def collect_accept_signal(
+-#         self,
+-#         accept_index_row: List[int],
+-#         draft_token_num: int,
+-#     ):
+-#         """
+-#         Call in verify() inside the per-req loop after accept_index_row.
+-#         Returns immediately during CUDA graph capture — safe to call always.
+-#         """
+-#         if not self.enabled or not self.rolling_accept_rate:
+-#             return
+-#         if _is_capturing():          # ← CUDA graph capture guard
+-#             return
+-#         n_acc = max(0, sum(1 for idx in accept_index_row if idx != -1) - 1)
+-#         possible = draft_token_num - 1
+-#         self._step_accept_rate = n_acc / possible if possible > 0 else 0.0
+-
+-#     def decide(self, req) -> Tuple[int, int]:
+-#         """
+-#         Combine enabled signals → return (spec_steps, num_draft_tokens).
+-
+-#         Args:
+-#             req: Req object (for rolling accept rate histogram)
+-#         """
+-#         if not self.enabled:
+-#             return self.max_steps, self.max_dtn
+-
+-#         score = self._compute_combined_score(req)
+-#         steps, dtn = self._policy(score)
+-
+-#         logger.debug(
+-#             f"DynamicSpec: score={score:.3f} → steps={steps} dtn={dtn} | "
+-#             f"draft_ent={self._mean(self._draft_entropies):.3f} "
+-#             f"path={self._path_score} "
+-#             f"tgt_ent={self._target_entropy} "
+-#             f"acc={self._step_accept_rate}"
+-#         )
+-
+-#         if self.signal_log_path:
+-#             log_dir = os.path.dirname(self.signal_log_path)
+-#             if log_dir:
+-#                 os.makedirs(log_dir, exist_ok=True)
+-#             record = {"score": score, "chosen_steps": steps, "chosen_dtn": dtn}
+-#             record.update(self.summary())
+-#             record["rolling_accept_rate_value"] = self._get_rolling_accept_rate(req)
+-#             with open(self.signal_log_path, "a") as _f:
+-#                 _f.write(json.dumps(record) + "\n")
+-
+-#         return steps, dtn
+-
+-#     def summary(self) -> dict:
+-#         """Return raw signal values for this step — used in logging/debug scripts."""
+-#         return {
+-#             "draft_entropies":  list(self._draft_entropies),
+-#             "top1_probs":       list(self._top1_probs),
+-#             "top1_margins":     list(self._top1_margins),
+-#             "hidden_norms":     list(self._hidden_norms),
+-#             "path_score":       self._path_score,
+-#             "target_entropy":   self._target_entropy,
+-#             "step_accept_rate": self._step_accept_rate,
+-#             "max_entropy_ref":  self.max_entropy_ref,
+-#         }
+-
+-#     # ── internal ──────────────────────────────────────────────────────────────
+-
+-#     @staticmethod
+-#     def _mean(lst: List[float]) -> float:
+-#         return sum(lst) / len(lst) if lst else 0.0
+-
+-#     def _compute_combined_score(self, req) -> float:
+-#         """Combined uncertainty score in [0, 1]. 0=confident, 1=uncertain."""
+-#         total_w = 0.0
+-#         total_s = 0.0
+-
+-#         def add(val: float, w: float):
+-#             nonlocal total_w, total_s
+-#             total_w += w
+-#             total_s += w * max(0.0, min(1.0, val))
+-
+-#         if self.draft_entropy and self._draft_entropies:
+-#             add(self._mean(self._draft_entropies) / self.max_entropy_ref,
+-#                 self.weight_draft_entropy)
+-
+-#         if self.top1_prob and self._top1_probs:
+-#             add(1.0 - self._mean(self._top1_probs), self.weight_top1_prob)
+-
+-#         if self.top1_minus_top2 and self._top1_margins:
+-#             add(1.0 - min(self._mean(self._top1_margins), 1.0),
+-#                 self.weight_top1_minus_top2)
+-
+-#         if self.hidden_norm and self._hidden_norms:
+-#             add(min(self._mean(self._hidden_norms) / 100.0, 1.0),
+-#                 self.weight_hidden_norm)
+-
+-#         if self.path_score and self._path_score is not None:
+-#             add(1.0 - self._path_score, self.weight_path_score)
+-
+-#         if self.target_entropy and self._target_entropy is not None:
+-#             add(self._target_entropy / self.max_entropy_ref,
+-#                 self.weight_target_entropy)
+-
+-#         if (self.entropy_gap
+-#                 and self._draft_entropies
+-#                 and self._target_entropy is not None):
+-#             gap = self._mean(self._draft_entropies) - self._target_entropy
+-#             # normalised = (gap / self.max_entropy_ref + 1.0) / 2.0
+-#             normalised = (-gap / self.max_entropy_ref + 1.0) / 2.0
+-#             add(normalised, self.weight_entropy_gap)
+-
+-#         if self.rolling_accept_rate:
+-#             rate = self._get_rolling_accept_rate(req)
+-#             if rate is not None:
+-#                 add(1.0 - rate, self.weight_rolling_accept_rate)
+-
+-#         return total_s / total_w if total_w > 0.0 else 0.0
+-
+-#     def _get_rolling_accept_rate(self, req) -> Optional[float]:
+-#         hist = getattr(req, "spec_acceptance_histogram", None)
+-#         if not hist:
+-#             return None
+-#         total_steps = sum(hist)
+-#         if total_steps == 0:
+-#             return None
+-#         max_accepted = len(hist) - 1
+-#         if max_accepted == 0:
+-#             return 0.0
+-#         total_accepted = sum(i * hist[i] for i in range(len(hist)))
+-#         return total_accepted / (total_steps * max_accepted)
+-
+-#     def _policy(self, score: float) -> Tuple[int, int]:
+-#         """
+-#         Bidirectional 3-tier policy. steps and dtn are independent.
+-
+-#         High confidence (score < high_conf_threshold):
+-#             → max_steps, max_dtn  (CUDA graph eligible — matches captured shape)
+-#         Neutral (between thresholds):
+-#             → baseline_steps, baseline_dtn  (eager fallback if != max)
+-#         Low confidence (score >= low_conf_threshold):
+-#             → 1 step, topk + 1 dtn  (minimal speculation, eager fallback)
+-#         """
+-#         if score < self.high_conf_threshold:
+-#             steps = self.max_steps
+-#             dtn = self.max_dtn
+-#         elif score < self.low_conf_threshold:
+-#             steps = self.baseline_steps
+-#             dtn = self.baseline_dtn
+-#         else:
+-#             steps = 1
+-#             dtn = self.topk + 1
+-
+-#         return steps, dtn
+\ No newline at end of file
+diff --git a/python/sglang/srt/speculative/eagle_draft_cuda_graph_runner.py b/python/sglang/srt/speculative/eagle_draft_cuda_graph_runner.py
+index 40e859b2d..89945d0c6 100644
+--- a/python/sglang/srt/speculative/eagle_draft_cuda_graph_runner.py
++++ b/python/sglang/srt/speculative/eagle_draft_cuda_graph_runner.py
+@@ -51,6 +51,9 @@ class EagleDraftInputBuffers(ForwardInputBuffers):
+     hidden_states: torch.Tensor
+     global_num_tokens_gpu: Optional[torch.Tensor]
+     global_num_tokens_for_logprob_gpu: Optional[torch.Tensor]
++    # Dynamic spec signal output buffers (None when disabled)
++    signal_draft_entropy: Optional[torch.Tensor] = None
++    signal_hidden_norm: Optional[torch.Tensor] = None
+ 
+ 
+ class EAGLEDraftCudaGraphRunner:
+@@ -141,6 +144,18 @@ class EAGLEDraftCudaGraphRunner:
+                 global_num_tokens_gpu = None
+                 global_num_tokens_for_logprob_gpu = None
+ 
++        # Dynamic spec signal output buffers
++        signal_draft_entropy = None
++        signal_hidden_norm = None
++        if model_runner.server_args.enable_dynamic_speculative_decoding:
++            with torch.device(model_runner.device):
++                signal_draft_entropy = torch.zeros(
++                    (self.max_num_token,), dtype=torch.float32
++                )
++                signal_hidden_norm = torch.zeros(
++                    (self.max_num_token,), dtype=torch.float32
++                )
++
+         self.buffers = EagleDraftInputBuffers(
+             input_ids=input_ids,
+             req_pool_indices=req_pool_indices,
+@@ -155,6 +170,8 @@ class EAGLEDraftCudaGraphRunner:
+             hidden_states=hidden_states,
+             global_num_tokens_gpu=global_num_tokens_gpu,
+             global_num_tokens_for_logprob_gpu=global_num_tokens_for_logprob_gpu,
++            signal_draft_entropy=signal_draft_entropy,
++            signal_hidden_norm=signal_hidden_norm,
+         )
+         self.buffers.share_buffers()
+ 
+@@ -279,6 +296,8 @@ class EAGLEDraftCudaGraphRunner:
+             topk_index=topk_index,
+             hidden_states=hidden_states,
+             capture_hidden_mode=CaptureHiddenMode.LAST,
++            signal_draft_entropy=buffers.signal_draft_entropy,
++            signal_hidden_norm=buffers.signal_hidden_norm,
+         )
+ 
+         # Forward batch
+diff --git a/python/sglang/srt/speculative/eagle_info.py b/python/sglang/srt/speculative/eagle_info.py
+index 1b141e951..5bcef0ae2 100644
+--- a/python/sglang/srt/speculative/eagle_info.py
++++ b/python/sglang/srt/speculative/eagle_info.py
+@@ -377,6 +377,22 @@ class EagleVerifyInput(SpecInput, EagleVerifyInputV2Mixin):
+                 deterministic=True,
+             )
+ 
++        # Dynamic speculative decoding: compute target entropy.
++        # logits_output.next_token_logits holds the raw target model logits
++        # for all draft token positions.  It is populated by the target model
++        # forward pass *before* either the greedy (temperature=0) or the
++        # stochastic (temperature>0) verification branch, so it is always
++        # available regardless of the sampling strategy.
++        # We compute entropy from the unscaled softmax so that the signal is
++        # comparable across different temperature settings.
++        if get_global_server_args().enable_dynamic_speculative_decoding:
++            with torch.no_grad():
++                raw_logits = logits_output.next_token_logits  # (bs * dtn, V)
++                t_probs = F.softmax(raw_logits, dim=-1)
++                t_log_probs = torch.log(t_probs + 1e-10)
++                per_token_ent = -(t_probs * t_log_probs).sum(dim=-1)
++                self._dynamic_spec_target_entropy = per_token_ent.mean().item()
++
+         if SIMULATE_ACC_LEN > 0.0:
+             # Do simulation
+             accept_index = generate_simulated_accept_index(
+@@ -434,13 +450,18 @@ class EagleVerifyInput(SpecInput, EagleVerifyInputV2Mixin):
+             req.update_spec_acceptance_histogram(accepted_draft_tokens)
+ 
+             draft_toks = candidates_cpu[i]
+-            acc_indices = [idx for idx in accept_index_row if idx != -1]
+-            acc_set = set(acc_indices)
++            # accept_index values are GLOBAL indices into the flattened
++            # predict/draft_token array.  Convert to per-request local
++            # indices by subtracting the request's base offset.
++            base = i * self.draft_token_num
++            acc_indices_global = [idx for idx in accept_index_row if idx != -1]
++            acc_indices_local = [idx - base for idx in acc_indices_global]
++            acc_set = set(acc_indices_local)
+ 
+             req.spec_draft_tokens.append(draft_toks)
+-            req.spec_accepted_tokens_log.append([draft_toks[idx] for idx in acc_indices])
++            req.spec_accepted_tokens_log.append([draft_toks[idx] for idx in acc_indices_local if 0 <= idx < len(draft_toks)])
+             req.spec_rejected_tokens_log.append([draft_toks[idx] for idx in range(len(draft_toks)) if idx not in acc_set])
+-            req.spec_accept_index_log.append(acc_indices)
++            req.spec_accept_index_log.append(acc_indices_local)
+ 
+             req.spec_logged_topk.append(self.topk)
+             req.spec_logged_num_steps.append(self.spec_steps)
+@@ -449,6 +470,15 @@ class EagleVerifyInput(SpecInput, EagleVerifyInputV2Mixin):
+             req.spec_retrive_next_token.append(self.retrive_next_token[i].tolist())
+             req.spec_retrive_next_sibling.append(self.retrive_next_sibling[i].tolist())
+ 
++            # Dynamic spec: update rolling accept rate (EMA)
++            if get_global_server_args().enable_dynamic_speculative_decoding:
++                denom = max(self.draft_token_num - 1, 1)
++                step_rate = accepted_draft_tokens / denom
++                alpha = 0.3
++                req.rolling_accept_rate = (
++                    alpha * step_rate + (1 - alpha) * req.rolling_accept_rate
++                )
++
+ 
+         if has_finished:
+             accept_length = (accept_index != -1).sum(dim=1) - 1
+@@ -668,6 +698,12 @@ class EagleDraftInput(SpecInput, EagleDraftInputV2Mixin):
+     new_seq_lens: Optional[torch.Tensor] = None
+     verify_done: Optional[torch.cuda.Event] = None
+ 
++    # Dynamic speculative decoding signal buffers.
++    # Written in draft_forward(), read after draft() returns.
++    # Shape: (bs * topk,) — last step's values from the draft loop.
++    signal_draft_entropy: Optional[torch.Tensor] = None
++    signal_hidden_norm: Optional[torch.Tensor] = None
++
+     def __post_init__(self):
+         super().__init__(SpecInputType.EAGLE_DRAFT)
+ 
+diff --git a/python/sglang/srt/speculative/eagle_worker.py b/python/sglang/srt/speculative/eagle_worker.py
+index b6c53422e..1f6712024 100644
+--- a/python/sglang/srt/speculative/eagle_worker.py
++++ b/python/sglang/srt/speculative/eagle_worker.py
+@@ -95,6 +95,27 @@ class EAGLEWorker(TpModelWorker):
+         self.topk = server_args.speculative_eagle_topk
+         self.speculative_num_steps = server_args.speculative_num_steps
+         self.speculative_num_draft_tokens = server_args.speculative_num_draft_tokens
++
++        # Dynamic speculative decoding
++        self._dynamic_spec_enabled = server_args.enable_dynamic_speculative_decoding
++        if self._dynamic_spec_enabled:
++            from sglang.srt.speculative.dynamic_spec import DynamicSpecPolicy
++
++            self.topk_max = server_args.speculative_eagle_topk_max
++            self.num_steps_max = server_args.speculative_num_steps_max
++            self.ndt_max = server_args.speculative_num_draft_tokens_max
++            self.dynamic_spec_policy = DynamicSpecPolicy(server_args)
++            # Multi-config lookup tables (populated in init_attention_backend / init_cuda_graphs)
++            self.draft_attn_backends_map = {}
++            self.cuda_graph_runners_map = {}
++            self.cuda_graph_runners_extend_map = {}
++            # Signal state carried between draft/verify/next-draft
++            self._last_draft_entropy = 0.0
++            self._last_target_entropy = 0.0
++            # Eager-path signal buffers (allocated lazily in draft())
++            self._eager_signal_draft_entropy = None
++            self._eager_signal_hidden_norm = None
++
+         self.gpu_id = gpu_id
+         self.device = server_args.device
+         self.target_worker = target_worker
+@@ -230,6 +251,26 @@ class EAGLEWorker(TpModelWorker):
+ 
+         self.draft_model_runner.draft_attn_backend = self.draft_attn_backend
+ 
++        # Dynamic spec: additionally create backends for every (topk, num_steps) combo
++        if self._dynamic_spec_enabled:
++            for topk in range(1, self.topk_max + 1):
++                for num_steps in range(1, self.num_steps_max + 1):
++                    if (topk, num_steps) == (self.topk, self.speculative_num_steps):
++                        # Already created above — reuse it
++                        self.draft_attn_backends_map[(topk, num_steps)] = (
++                            self.draft_attn_backend
++                        )
++                        continue
++                    factory = DraftBackendFactory(
++                        self.server_args,
++                        self.draft_model_runner,
++                        topk,
++                        num_steps,
++                    )
++                    self.draft_attn_backends_map[(topk, num_steps)] = (
++                        factory.create_decode_backend()
++                    )
++
+     def init_cuda_graphs(self):
+         """Capture cuda graphs."""
+         self.cuda_graph_runner = None
+@@ -272,6 +313,112 @@ class EAGLEWorker(TpModelWorker):
+                 f"Capture draft extend cuda graph end. Time elapsed: {time.perf_counter() - tic:.2f} s. mem usage={(before_mem - after_mem):.2f} GB. avail mem={after_mem:.2f} GB."
+             )
+ 
++        # Dynamic spec: capture graphs for every (topk, num_steps) configuration
++        if self._dynamic_spec_enabled and not self.server_args.disable_cuda_graph:
++            self._init_cuda_graphs_dynamic(Device2DraftCudaGraphRunner)
++
++    def _init_cuda_graphs_dynamic(self, Device2DraftCudaGraphRunner):
++        """Capture CUDA graphs for all (topk, num_steps) combos."""
++        saved_topk = self.topk
++        saved_num_steps = self.speculative_num_steps
++        saved_ndt = self.speculative_num_draft_tokens
++
++        tic = time.perf_counter()
++        before_mem = get_available_gpu_memory(self.device, self.gpu_id)
++        n_configs = 0
++
++        # Store the starting config's runners (already captured above)
++        if self.cuda_graph_runner is not None:
++            self.cuda_graph_runners_map[(saved_topk, saved_num_steps)] = (
++                self.cuda_graph_runner
++            )
++        if self.cuda_graph_runner_for_draft_extend is not None:
++            self.cuda_graph_runners_extend_map[saved_num_steps] = (
++                self.cuda_graph_runner_for_draft_extend
++            )
++
++        for topk in range(1, self.topk_max + 1):
++            for num_steps in range(1, self.num_steps_max + 1):
++                if (topk, num_steps) == (saved_topk, saved_num_steps):
++                    continue  # already captured
++                if num_steps <= 1:
++                    # num_steps=1 runs in eager mode (no draft graph needed)
++                    continue
++
++                # Set the FULL config for this graph capture.
++                # EAGLEDraftCudaGraphRunner.__init__ reads topk and
++                # speculative_num_steps from server_args to size buffers.
++                # draft_forward() reads self.speculative_num_draft_tokens
++                # for organize_draft_results() pruning — must be valid for
++                # this (topk, num_steps) combo or topk will be out of range.
++                # For topk=1: ndt = num_steps + 1 (linear chain).
++                # For topk>1: ndt = min(ndt_max, tree_size + 1).
++                max_tree = sum(topk**i for i in range(1, num_steps + 1)) + 1
++                ndt = min(self.ndt_max, max_tree)
++                if topk == 1:
++                    ndt = num_steps + 1
++                self.topk = topk
++                self.speculative_num_steps = num_steps
++                self.speculative_num_draft_tokens = ndt
++                self.server_args.speculative_eagle_topk = topk
++                self.server_args.speculative_num_steps = num_steps
++                self.server_args.speculative_num_draft_tokens = ndt
++                self.draft_attn_backend = self.draft_attn_backends_map[
++                    (topk, num_steps)
++                ]
++                self.draft_model_runner.draft_attn_backend = self.draft_attn_backend
++
++                self.cuda_graph_runners_map[(topk, num_steps)] = (
++                    Device2DraftCudaGraphRunner[self.target_worker.device](self)
++                )
++                n_configs += 1
++
++        # Capture extend runners for each distinct num_steps.
++        # ALL extend graphs use topk_max so that capture_for_decode
++        # (fast_topk inside the graph) always produces (bs, topk_max).
++        # The starting config's extend graph (if it exists) was captured
++        # with saved_topk which may be < topk_max, so we re-capture it.
++        self.server_args.speculative_eagle_topk = self.topk_max
++        self.topk = self.topk_max
++        for num_steps in range(1, self.num_steps_max + 1):
++            if not self.draft_extend_attn_backend or _is_npu:
++                continue
++            self.speculative_num_steps = num_steps
++            self.server_args.speculative_num_steps = num_steps
++            self.cuda_graph_runners_extend_map[num_steps] = (
++                EAGLEDraftExtendCudaGraphRunner(self)
++            )
++        # Override the starting config's extend runner too
++        self.cuda_graph_runner_for_draft_extend = (
++            self.cuda_graph_runners_extend_map.get(saved_num_steps)
++        )
++
++        # Restore starting config on both self and server_args
++        self.topk = saved_topk
++        self.speculative_num_steps = saved_num_steps
++        self.speculative_num_draft_tokens = saved_ndt
++        self.server_args.speculative_eagle_topk = saved_topk
++        self.server_args.speculative_num_steps = saved_num_steps
++        self.server_args.speculative_num_draft_tokens = saved_ndt
++        self.draft_attn_backend = self.draft_attn_backends_map.get(
++            (saved_topk, saved_num_steps)
++        )
++        self.draft_model_runner.draft_attn_backend = self.draft_attn_backend
++        self.cuda_graph_runner = self.cuda_graph_runners_map.get(
++            (saved_topk, saved_num_steps)
++        )
++        self.cuda_graph_runner_for_draft_extend = (
++            self.cuda_graph_runners_extend_map.get(saved_num_steps)
++        )
++
++        after_mem = get_available_gpu_memory(self.device, self.gpu_id)
++        logger.info(
++            f"Dynamic spec: captured {n_configs} additional draft graph configs + "
++            f"{len(self.cuda_graph_runners_extend_map)} extend configs. "
++            f"Time: {time.perf_counter() - tic:.2f}s. "
++            f"Mem: {before_mem - after_mem:.2f} GB used, {after_mem:.2f} GB avail."
++        )
++
+     @property
+     def draft_model_runner(self):
+         return self.model_runner
+@@ -309,6 +456,11 @@ class EAGLEWorker(TpModelWorker):
+                 can_run_cuda_graph=False,
+             )
+         else:
++            if self._dynamic_spec_enabled:
++                logger.info(
++                    f"[DYNSPEC FBG] mode={batch.forward_mode}, bs={batch.batch_size()}, "
++                    f"is_idle={batch.forward_mode.is_idle()}"
++                )
+             with self.draft_tp_context(
+                 self.draft_model_runner.tp_group
+             ), speculative_moe_backend_context(), speculative_moe_a2a_backend_context():
+@@ -531,6 +683,29 @@ class EAGLEWorker(TpModelWorker):
+         )
+ 
+     def draft(self, batch: ScheduleBatch):
++        # Dynamic spec: select config for this step based on previous signals
++        if self._dynamic_spec_enabled and not batch.forward_mode.is_idle():
++            # Log state BEFORE config change
++            si = batch.spec_info
++            if isinstance(si, EagleDraftInput) and si.topk_p is not None:
++                logger.info(
++                    f"[DYNSPEC DRAFT-PRE] bs={batch.batch_size()}, "
++                    f"topk_p_shape={tuple(si.topk_p.shape)}, "
++                    f"hs_shape={tuple(si.hidden_states.shape)}, "
++                    f"current_topk={self.topk}, current_steps={self.speculative_num_steps}, "
++                    f"current_ndt={self.speculative_num_draft_tokens}"
++                )
++            self._apply_dynamic_spec_config(batch)
++            # Log state AFTER config change
++            si = batch.spec_info
++            if isinstance(si, EagleDraftInput) and si.topk_p is not None:
++                logger.info(
++                    f"[DYNSPEC DRAFT-POST] bs={batch.batch_size()}, "
++                    f"topk_p_shape={tuple(si.topk_p.shape)}, "
++                    f"new_topk={self.topk}, new_steps={self.speculative_num_steps}, "
++                    f"new_ndt={self.speculative_num_draft_tokens}"
++                )
++
+         # Parse args
+         if batch.forward_mode.is_idle():
+             self._draft_preprocess_idle(batch)
+@@ -555,10 +730,26 @@ class EAGLEWorker(TpModelWorker):
+             forward_batch
+         )
+         if can_cuda_graph:
+-            parent_list, top_scores_index, draft_tokens = self.cuda_graph_runner.replay(
+-                forward_batch
+-            )
++            draft_result = self.cuda_graph_runner.replay(forward_batch)
+         else:
++            # Eager path: ensure signal buffers exist so draft_forward() can
++            # write exact entropy into them (CUDA graph path uses the graph
++            # runner's pre-allocated buffers instead — see capture_one_batch_size).
++            if self._dynamic_spec_enabled and not forward_batch.forward_mode.is_idle():
++                n_tok = forward_batch.batch_size * self.topk
++                if (
++                    self._eager_signal_draft_entropy is None
++                    or self._eager_signal_draft_entropy.shape[0] < n_tok
++                ):
++                    self._eager_signal_draft_entropy = torch.zeros(
++                        n_tok, dtype=torch.float32, device=self.device
++                    )
++                    self._eager_signal_hidden_norm = torch.zeros(
++                        n_tok, dtype=torch.float32, device=self.device
++                    )
++                spec_info.signal_draft_entropy = self._eager_signal_draft_entropy
++                spec_info.signal_hidden_norm = self._eager_signal_hidden_norm
++
+             forward_batch.can_run_dp_cuda_graph = False
+             if (
+                 not forward_batch.forward_mode.is_idle()
+@@ -567,9 +758,35 @@ class EAGLEWorker(TpModelWorker):
+                 # Skip attention backend init for idle mode or 1-step draft
+                 self.draft_attn_backend.init_forward_metadata(forward_batch)
+             # Run forward steps
+-            parent_list, top_scores_index, draft_tokens = self.draft_forward(
+-                forward_batch
+-            )
++            draft_result = self.draft_forward(forward_batch)
++
++        # Dynamic spec: organize_draft_results runs OUTSIDE the CUDA graph
++        # so that num_draft_tokens can vary at runtime.
++        if self._dynamic_spec_enabled:
++            flat_scores, flat_tokens, flat_parents = draft_result
++            ndt = self.speculative_num_draft_tokens
++            if not batch.forward_mode.is_idle():
++                logger.info(
++                    f"[DYNSPEC DRAFT-ORGANIZE] flat_scores={tuple(flat_scores.shape)}, "
++                    f"flat_tokens={tuple(flat_tokens.shape)}, ndt={ndt}, "
++                    f"can_cuda_graph={can_cuda_graph}, bs={forward_batch.batch_size}"
++                )
++            top_scores = torch.topk(flat_scores, ndt - 1, dim=-1)
++            top_scores_index = torch.sort(top_scores.indices).values
++            draft_tokens = torch.gather(flat_tokens, index=top_scores_index, dim=1)
++            parent_list = flat_parents
++        else:
++            parent_list, top_scores_index, draft_tokens = draft_result
++
++        # Extract exact draft entropy written by draft_forward()
++        if self._dynamic_spec_enabled and not batch.forward_mode.is_idle():
++            n = forward_batch.batch_size * self.topk
++            if can_cuda_graph and self.cuda_graph_runner is not None:
++                ent_buf = self.cuda_graph_runner.buffers.signal_draft_entropy
++            else:
++                ent_buf = spec_info.signal_draft_entropy
++            if ent_buf is not None:
++                self._last_draft_entropy = ent_buf[:n].mean().item()
+ 
+         if batch.forward_mode.is_idle():
+             return EagleVerifyInput.create_idle_input(
+@@ -607,12 +824,154 @@ class EAGLEWorker(TpModelWorker):
+             retrive_cum_len=None,
+             spec_steps=self.speculative_num_steps,
+             topk=self.topk,
+-            draft_token_num=self.server_args.speculative_num_draft_tokens,
++            draft_token_num=self.speculative_num_draft_tokens,
+             capture_hidden_mode=CaptureHiddenMode.FULL,
+             seq_lens_sum=forward_batch.seq_lens_sum,
+             seq_lens_cpu=forward_batch.seq_lens_cpu,
+         )
+ 
++    # ------------------------------------------------------------------ #
++    # Dynamic speculative decoding helpers                                #
++    # ------------------------------------------------------------------ #
++
++    def _apply_dynamic_spec_config(self, batch: ScheduleBatch):
++        """Collect signals from previous round and select config for this round.
++
++        ORDERING: signals are collected FIRST (from old spec_info using the
++        previous round's topk/num_steps), then self.topk etc. are swapped to
++        the new config.  This ensures signals reflect the previous round's
++        actual behaviour, not the yet-to-run current round.
++        """
++        from sglang.srt.speculative.dynamic_spec import DynamicSpecSignals
++
++        signals = self._collect_signals(batch)
++        topk, num_steps, ndt, confidence = self.dynamic_spec_policy.get_config(
++            signals
++        )
++
++        # Swap active parameters
++        self.topk = topk
++        self.speculative_num_steps = num_steps
++        self.speculative_num_draft_tokens = ndt
++
++        # Truncate topk_p / topk_index to match the new topk.
++        # The extend phase always produces (bs, topk_max) columns.
++        # Truncating sorted topk results to the first `topk` columns
++        # is mathematically identical to calling fast_topk(probs, topk).
++        spec_info = batch.spec_info
++        if (
++            isinstance(spec_info, EagleDraftInput)
++            and spec_info.topk_p is not None
++            and spec_info.topk_p.shape[1] > topk
++        ):
++            spec_info.topk_p = spec_info.topk_p[:, :topk].contiguous()
++            spec_info.topk_index = spec_info.topk_index[:, :topk].contiguous()
++
++        # Swap attention backend
++        backend = self.draft_attn_backends_map.get((topk, num_steps))
++        if backend is not None:
++            self.draft_attn_backend = backend
++            self.draft_model_runner.draft_attn_backend = backend
++
++        # Swap CUDA graph runner for draft
++        if num_steps > 1:
++            self.cuda_graph_runner = self.cuda_graph_runners_map.get(
++                (topk, num_steps)
++            )
++        else:
++            self.cuda_graph_runner = None  # num_steps=1 runs eager
++
++        # Swap CUDA graph runner for extend
++        self.cuda_graph_runner_for_draft_extend = (
++            self.cuda_graph_runners_extend_map.get(num_steps)
++        )
++
++        # Log signals + chosen config on every request in the batch
++        if confidence is not None:
++            log_entry = {
++                "confidence": confidence,
++                "draft_entropy": signals.draft_entropy,
++                "top1_prob": signals.top1_prob,
++                "top1_minus_top2": signals.top1_minus_top2,
++                "hidden_norm": signals.hidden_norm,
++                "target_entropy": signals.target_entropy,
++                "entropy_gap": signals.entropy_gap,
++                "rolling_accept_rate": signals.rolling_accept_rate,
++                "chosen_topk": topk,
++                "chosen_num_steps": num_steps,
++                "chosen_num_draft_tokens": ndt,
++            }
++            for req in batch.reqs:
++                req.spec_signal_log.append(log_entry)
++
++    def _collect_signals(self, batch: ScheduleBatch):
++        """Assemble signals from previous round's data on batch and reqs."""
++        from sglang.srt.speculative.dynamic_spec import DynamicSpecSignals
++
++        spec_info = batch.spec_info
++        if not isinstance(spec_info, EagleDraftInput) or spec_info.topk_p is None:
++            return DynamicSpecSignals()  # first step — no signals yet
++
++        import torch
++
++        bs = batch.batch_size()
++
++        # ── Tensor shape reasoning (documented for maintainability) ──────
++        #
++        # ASSUMPTION: spec_info was set by the *previous* round's
++        # draft-extend phase.
++        #   topk_p      : (n_prev, prev_topk)   — prev_topk is the topk
++        #                                          value used in the PREVIOUS
++        #                                          round, which may differ from
++        #                                          self.topk (already swapped
++        #                                          by _apply_dynamic_spec_config
++        #                                          for the CURRENT round).
++        #   hidden_states: (n_prev, hidden_size) — same batch indexing.
++        #
++        # This is correct: we want signals from the previous step's output
++        # to inform the current step's config choice.  The operations below
++        # only access [:, 0] and [:, 1] which are valid for any topk >= 1.
++        #
++        # ASSUMPTION: Between rounds the scheduler may remove finished
++        # requests, so batch.batch_size() (= bs) could be ≤ n_prev.
++        # New prefill requests go through the extend path, so decode
++        # batches always have valid spec_info.
++        #
++        # We use n = min(bs, topk_p.shape[0]) as the effective count to
++        # guard against edge-case mismatches during batch compaction.
++        # ─────────────────────────────────────────────────────────────────
++        n = min(bs, spec_info.topk_p.shape[0])
++        topk_p = spec_info.topk_p[:n]           # (n, topk)
++        hs = spec_info.hidden_states[:n]         # (n, hidden_size)
++
++        top1_prob = topk_p[:, 0].mean().item()
++        if topk_p.shape[1] >= 2:
++            top1_minus_top2 = (topk_p[:, 0] - topk_p[:, 1]).mean().item()
++        else:
++            top1_minus_top2 = top1_prob
++        hidden_norm = torch.norm(hs, dim=-1).mean().item()
++
++        # draft_entropy: exact value from the previous draft_forward().
++        # Written into spec_info.signal_draft_entropy (CUDA graph or eager)
++        # and stored in self._last_draft_entropy after each draft() call.
++        draft_entropy = self._last_draft_entropy
++        target_entropy = self._last_target_entropy
++
++        # Rolling accept rate: average across batch
++        rolling_accept_rate = sum(
++            req.rolling_accept_rate for req in batch.reqs
++        ) / max(bs, 1)
++
++        return DynamicSpecSignals(
++            draft_entropy=draft_entropy,
++            top1_prob=top1_prob,
++            top1_minus_top2=top1_minus_top2,
++            hidden_norm=hidden_norm,
++            target_entropy=target_entropy,
++            entropy_gap=target_entropy - draft_entropy,
++            rolling_accept_rate=rolling_accept_rate,
++        )
++
+     def draft_forward(self, forward_batch: ForwardBatch):
+         # Parse args
+         spec_info = forward_batch.spec_info
+@@ -687,11 +1046,37 @@ class EAGLEWorker(TpModelWorker):
+                 topk_index = self.hot_token_id[topk_index]
+             hidden_states = logits_output.hidden_states
+ 
+-        parent_list, top_scores_index, draft_tokens = organize_draft_results(
+-            score_list, token_list, parents_list, self.speculative_num_draft_tokens
+-        )
+-
+-        return parent_list, top_scores_index, draft_tokens
++            # Dynamic spec signals: exact entropy from full softmax and
++            # hidden-state norm.  When a CUDA graph captures draft_forward(),
++            # these ops are baked in and the results land in the pre-allocated
++            # signal buffers.  When dynamic spec is off the buffers are None
++            # and this block is skipped — zero overhead.
++            if spec_info.signal_draft_entropy is not None:
++                n = probs.shape[0]
++                log_probs = torch.log(probs + 1e-10)
++                spec_info.signal_draft_entropy[:n] = -(probs * log_probs).sum(dim=-1)
++                spec_info.signal_hidden_norm[:n] = torch.norm(hidden_states, dim=-1)
++
++        if self._dynamic_spec_enabled:
++            # Return concatenated raw tree data so organize_draft_results
++            # can run OUTSIDE the CUDA graph with a runtime ndt value.
++            # The torch.cat ops have fixed output shapes (determined by
++            # topk × num_steps) and are safe inside the graph.
++            flat_scores = torch.cat(score_list, dim=1).flatten(1)
++            flat_tokens = torch.cat(token_list, dim=1)
++            if len(parents_list) > 1:
++                flat_parents = torch.cat(parents_list[:-1], dim=1)
++            else:
++                flat_parents = torch.empty(
++                    flat_tokens.shape[0], 0, device=flat_tokens.device
++                )
++            return flat_scores, flat_tokens, flat_parents
++        else:
++            # Vanilla path: organize_draft_results inside the graph as before
++            parent_list, top_scores_index, draft_tokens = organize_draft_results(
++                score_list, token_list, parents_list, self.speculative_num_draft_tokens
++            )
++            return parent_list, top_scores_index, draft_tokens
+ 
+     def clear_cache_pool(self):
+         # allocator and kv cache pool are shared with target worker
+@@ -709,6 +1094,32 @@ class EAGLEWorker(TpModelWorker):
+         )
+         batch.spec_info = spec_info
+ 
++        # Dynamic spec: when ndt differs from the target verify graph's
++        # num_tokens_per_bs (starting_ndt), the graph can't handle the
++        # token count.  Temporarily disable it so the target model uses
++        # eager forward_extend (which handles any ndt correctly).
++        # Also set num_tokens_per_req to match the actual draft_token_num
++        # so the batch_size back-computation gives the correct raw_bs.
++        _saved_graph_runner = None
++        if self._dynamic_spec_enabled and not batch.forward_mode.is_idle():
++            spec_info.num_tokens_per_req = spec_info.draft_token_num
++            graph_runner = self.target_worker.model_runner.graph_runner
++            graph_ndt = graph_runner.num_tokens_per_bs if graph_runner else None
++            logger.info(
++                f"[DYNSPEC VERIFY] bs={batch.batch_size()}, "
++                f"draft_token_num={spec_info.draft_token_num}, "
++                f"num_tokens_per_req={spec_info.num_tokens_per_req}, "
++                f"input_ids_len={len(batch.input_ids)}, "
++                f"graph_ndt={graph_ndt}, "
++                f"will_disable_graph={graph_runner is not None and spec_info.draft_token_num != graph_ndt}"
++            )
++            if (
++                graph_runner
++                and spec_info.draft_token_num != graph_runner.num_tokens_per_bs
++            ):
++                _saved_graph_runner = graph_runner
++                self.target_worker.model_runner.graph_runner = None
++
+         model_worker_batch = batch.get_model_worker_batch(
+             seq_lens_cpu_cache=spec_info.seq_lens_cpu
+         )
+@@ -730,6 +1141,10 @@ class EAGLEWorker(TpModelWorker):
+             batch_result.can_run_cuda_graph,
+         )
+ 
++        # Restore graph runner
++        if _saved_graph_runner is not None:
++            self.target_worker.model_runner.graph_runner = _saved_graph_runner
++
+         vocab_mask = None
+         if batch.has_grammar:
+             # Generate the logit mask for structured output.
+@@ -761,6 +1176,12 @@ class EAGLEWorker(TpModelWorker):
+             vocab_mask,
+         )
+ 
++        # Dynamic spec: capture target entropy computed during verify()
++        if self._dynamic_spec_enabled:
++            self._last_target_entropy = getattr(
++                spec_info, "_dynamic_spec_target_entropy", 0.0
++            )
++
+         # Post process based on verified outputs.
+         # Pick indices that we care (accepted)
+         logits_output.next_token_logits = logits_output.next_token_logits[
+@@ -1006,9 +1427,24 @@ class EAGLEWorker(TpModelWorker):
+     def capture_for_decode(
+         self, logits_output: LogitsProcessorOutput, draft_input: EagleDraftInput
+     ):
++        # When dynamic spec is enabled, always produce topk_p with topk_max
++        # columns so that the next round can truncate to any topk <= topk_max.
++        # This ensures all branches have real probabilities (no zero-padding).
++        topk_for_extend = (
++            self.topk_max if self._dynamic_spec_enabled else self.topk
++        )
+         probs = torch.softmax(logits_output.next_token_logits, dim=-1)
+-        draft_input.topk_p, draft_input.topk_index = fast_topk(probs, self.topk, dim=-1)
++        draft_input.topk_p, draft_input.topk_index = fast_topk(
++            probs, topk_for_extend, dim=-1
++        )
+         draft_input.hidden_states = logits_output.hidden_states
++        if self._dynamic_spec_enabled:
++            logger.info(
++                f"[DYNSPEC EXTEND] topk_for_extend={topk_for_extend}, "
++                f"topk_p_shape={tuple(draft_input.topk_p.shape)}, "
++                f"hs_shape={tuple(draft_input.hidden_states.shape)}, "
++                f"logits_shape={tuple(logits_output.next_token_logits.shape)}"
++            )
+ 
+     def update_weights_from_tensor(self, recv_req: UpdateWeightsFromTensorReqInput):
+         monkey_patch_torch_reductions()

@@ -1,0 +1,28 @@
+=== Module list ===
+Currently Loaded Modulefiles:
+ 1) rhel8/slurm   2) singularity/current   3) rhel8/global   4) cuda/12.1  
+
+=== nvcc version ===
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2023 NVIDIA Corporation
+Built on Mon_Apr__3_17:16:06_PDT_2023
+Cuda compilation tools, release 12.1, V12.1.105
+Build cuda_12.1.r12.1/compiler.32688072_0
+============================================================
+ Chain Benchmarks — Qwen/Qwen3-8B
+ Timestamp: 20260410_151915
+============================================================
+
+>>> [1/2] Vanilla EAGLE3 3,1,4 (small chain)
+  Waiting for server (PID 44824)...
+  Running benchmarks: vanilla_314
+  Killing server (PID 44824)...
+
+>>> [2/2] Vanilla EAGLE3 7,1,8 (deep chain)
+  Waiting for server (PID 44833)...
+  Running benchmarks: vanilla_718
+  Killing server (PID 44833)...
+
+============================================================
+ CHAIN BENCHMARKS COMPLETE — qwen
+============================================================

@@ -1,0 +1,154 @@
+{
+  "configs": [
+    {
+      "name": "vanilla",
+      "enable_dynamic_spec": false,
+      "dynamic_spec_config": null,
+      "signal_log": null
+    },
+    {
+      "name": "all",
+      "enable_dynamic_spec": true,
+      "dynamic_spec_config": {
+        "draft_entropy": true,
+        "top1_prob": true,
+        "top1_minus_top2": true,
+        "hidden_norm": true,
+        "path_score": true,
+        "target_entropy": true,
+        "entropy_gap": true,
+        "rolling_accept_rate": true,
+        "signal_log_path": "probe_logs/signals_all.jsonl"
+      },
+      "signal_log": "probe_logs/signals_all.jsonl"
+    },
+    {
+      "name": "draft_entropy",
+      "enable_dynamic_spec": true,
+      "dynamic_spec_config": {
+        "draft_entropy": true,
+        "top1_prob": false,
+        "top1_minus_top2": false,
+        "hidden_norm": false,
+        "path_score": false,
+        "target_entropy": false,
+        "entropy_gap": false,
+        "rolling_accept_rate": false,
+        "signal_log_path": "probe_logs/signals_draft_entropy.jsonl"
+      },
+      "signal_log": "probe_logs/signals_draft_entropy.jsonl"
+    },
+    {
+      "name": "top1_prob",
+      "enable_dynamic_spec": true,
+      "dynamic_spec_config": {
+        "draft_entropy": false,
+        "top1_prob": true,
+        "top1_minus_top2": false,
+        "hidden_norm": false,
+        "path_score": false,
+        "target_entropy": false,
+        "entropy_gap": false,
+        "rolling_accept_rate": false,
+        "signal_log_path": "probe_logs/signals_top1_prob.jsonl"
+      },
+      "signal_log": "probe_logs/signals_top1_prob.jsonl"
+    },
+    {
+      "name": "top1_minus_top2",
+      "enable_dynamic_spec": true,
+      "dynamic_spec_config": {
+        "draft_entropy": false,
+        "top1_prob": false,
+        "top1_minus_top2": true,
+        "hidden_norm": false,
+        "path_score": false,
+        "target_entropy": false,
+        "entropy_gap": false,
+        "rolling_accept_rate": false,
+        "signal_log_path": "probe_logs/signals_top1_minus_top2.jsonl"
+      },
+      "signal_log": "probe_logs/signals_top1_minus_top2.jsonl"
+    },
+    {
+      "name": "hidden_norm",
+      "enable_dynamic_spec": true,
+      "dynamic_spec_config": {
+        "draft_entropy": false,
+        "top1_prob": false,
+        "top1_minus_top2": false,
+        "hidden_norm": true,
+        "path_score": false,
+        "target_entropy": false,
+        "entropy_gap": false,
+        "rolling_accept_rate": false,
+        "signal_log_path": "probe_logs/signals_hidden_norm.jsonl"
+      },
+      "signal_log": "probe_logs/signals_hidden_norm.jsonl"
+    },
+    {
+      "name": "path_score",
+      "enable_dynamic_spec": true,
+      "dynamic_spec_config": {
+        "draft_entropy": false,
+        "top1_prob": false,
+        "top1_minus_top2": false,
+        "hidden_norm": false,
+        "path_score": true,
+        "target_entropy": false,
+        "entropy_gap": false,
+        "rolling_accept_rate": false,
+        "signal_log_path": "probe_logs/signals_path_score.jsonl"
+      },
+      "signal_log": "probe_logs/signals_path_score.jsonl"
+    },
+    {
+      "name": "target_entropy",
+      "enable_dynamic_spec": true,
+      "dynamic_spec_config": {
+        "draft_entropy": false,
+        "top1_prob": false,
+        "top1_minus_top2": false,
+        "hidden_norm": false,
+        "path_score": false,
+        "target_entropy": true,
+        "entropy_gap": false,
+        "rolling_accept_rate": false,
+        "signal_log_path": "probe_logs/signals_target_entropy.jsonl"
+      },
+      "signal_log": "probe_logs/signals_target_entropy.jsonl"
+    },
+    {
+      "name": "entropy_gap",
+      "enable_dynamic_spec": true,
+      "dynamic_spec_config": {
+        "draft_entropy": false,
+        "top1_prob": false,
+        "top1_minus_top2": false,
+        "hidden_norm": false,
+        "path_score": false,
+        "target_entropy": false,
+        "entropy_gap": true,
+        "rolling_accept_rate": false,
+        "signal_log_path": "probe_logs/signals_entropy_gap.jsonl"
+      },
+      "signal_log": "probe_logs/signals_entropy_gap.jsonl"
+    },
+    {
+      "name": "rolling_accept_rate",
+      "enable_dynamic_spec": true,
+      "dynamic_spec_config": {
+        "draft_entropy": false,
+        "top1_prob": false,
+        "top1_minus_top2": false,
+        "hidden_norm": false,
+        "path_score": false,
+        "target_entropy": false,
+        "entropy_gap": false,
+        "rolling_accept_rate": true,
+        "signal_log_path": "probe_logs/signals_rolling_accept_rate.jsonl"
+      },
+      "signal_log": "probe_logs/signals_rolling_accept_rate.jsonl"
+    }
+  ]
+}

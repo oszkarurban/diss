@@ -1,0 +1,11 @@
+Logging stdout → logs/bench_deepseek_llamadraft_all_20260420_185125.out
+Logging stderr → logs/bench_deepseek_llamadraft_all_20260420_185125.err
+============================================================
+ Full DeepSeek bench — deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+ Timestamp: 20260420_185125
+============================================================
+
+>>> [1/3] Vanilla autoregressive (NO spec)
+  Waiting for server (PID 252922)...
+  Running benchmarks: vanilla_nospec
+    >>> mtbench:80

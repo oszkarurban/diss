@@ -1,0 +1,7 @@
+model,dataset,cheap_threshold,premium_threshold,distinct_best_configs,n_cheap_deciles,n_premium_deciles
+llama,livecodebench,0.003343944437801838,0.014272972010076046,"['static_3_1_4', 'static_6_10_60', 'static_7_1_8', 'static_7_4_8']",1,6
+llama,math500,,0.020105667412281036,"['static_6_10_60', 'static_7_1_8', 'static_7_4_8']",0,8
+llama,mtbench,,0.02772032655775547,"['static_6_10_60', 'static_7_1_8', 'static_7_4_8']",0,9
+qwen,livecodebench,,0.009958288632333279,"['static_6_10_60', 'static_7_4_8']",0,10
+qwen,math500,,0.009454329498112202,"['static_6_10_60', 'static_7_4_8']",0,10
+qwen,mtbench,,0.01844617910683155,"['static_6_10_60', 'static_7_1_8', 'static_7_4_8']",0,9

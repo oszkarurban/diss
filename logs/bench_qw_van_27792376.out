@@ -1,0 +1,64 @@
+=== Module list ===
+Currently Loaded Modulefiles:
+ 1) rhel8/slurm   2) singularity/current   3) rhel8/global   4) cuda/12.1  
+
+=== nvcc version ===
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2023 NVIDIA Corporation
+Built on Mon_Apr__3_17:16:06_PDT_2023
+Cuda compilation tools, release 12.1, V12.1.105
+Build cuda_12.1.r12.1/compiler.32688072_0
+=== Module list ===
+Currently Loaded Modulefiles:
+ 1) rhel8/slurm   2) singularity/current   3) rhel8/global   4) cuda/12.1  
+
+=== nvcc version ===
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2023 NVIDIA Corporation
+Built on Mon_Apr__3_17:16:06_PDT_2023
+Cuda compilation tools, release 12.1, V12.1.105
+Build cuda_12.1.r12.1/compiler.32688072_0
+============================================================
+ Vanilla autoregressive (NO spec) — Qwen/Qwen3-8B
+============================================================
+  Waiting for server (PID 1187409)...
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[2026-04-15 14:08:41] INFO:     127.0.0.1:60794 - "GET /v1/models HTTP/1.1" 200 OK
+[2026-04-15 14:08:42] INFO:     127.0.0.1:49146 - "GET /model_info HTTP/1.1" 200 OK
+
+
+        NOTE: Typically, the server runs in a separate terminal.
+        In this notebook, we run the server and notebook code together, so their outputs are combined.
+        To improve clarity, the server logs are displayed in the original black color, while the notebook outputs are highlighted in blue.
+        To reduce the log length, we set the log level to warning for the server, the default log level is info.
+        We are running those notebooks in a CI environment, so the throughput is not representative of the actual performance.
+        
+  Server ready.
+    >>> mtbench:80
+[2026-04-15 14:09:12] INFO:     127.0.0.1:49154 - "POST /generate HTTP/1.1" 200 OK
+[2026-04-15 14:09:13] INFO:     127.0.0.1:49110 - "GET /get_model_info HTTP/1.1" 200 OK
+[2026-04-15 14:09:13] INFO:     127.0.0.1:49114 - "POST /generate HTTP/1.1" 200 OK
+Running benchmark mtbench with 80 prompts, batch size 1, steps None, topk None, num_draft_tokens None, subset None
+[2026-04-15 14:10:05] INFO:     127.0.0.1:49122 - "POST /generate HTTP/1.1" 200 OK
+[2026-04-15 14:10:29] INFO:     127.0.0.1:45892 - "POST /generate HTTP/1.1" 200 OK
+[2026-04-15 14:10:52] INFO:     127.0.0.1:47438 - "POST /generate HTTP/1.1" 200 OK
+[2026-04-15 14:11:17] INFO:     127.0.0.1:51374 - "POST /generate HTTP/1.1" 200 OK
+[2026-04-15 14:11:40] INFO:     127.0.0.1:42044 - "POST /generate HTTP/1.1" 200 OK
+[2026-04-15 14:12:04] INFO:     127.0.0.1:47460 - "POST /generate HTTP/1.1" 200 OK
+[2026-04-15 14:12:27] INFO:     127.0.0.1:43460 - "POST /generate HTTP/1.1" 200 OK
+[2026-04-15 14:12:51] INFO:     127.0.0.1:49644 - "POST /generate HTTP/1.1" 200 OK
+[2026-04-15 14:12:57] INFO:     127.0.0.1:50146 - "POST /generate HTTP/1.1" 200 OK
+[2026-04-15 14:13:01] INFO:     127.0.0.1:50162 - "POST /generate HTTP/1.1" 200 OK
+[2026-04-15 14:13:08] INFO:     127.0.0.1:50176 - "POST /generate HTTP/1.1" 200 OK
+[2026-04-15 14:13:31] INFO:     127.0.0.1:49916 - "POST /generate HTTP/1.1" 200 OK
+[2026-04-15 14:13:54] INFO:     127.0.0.1:59214 - "POST /generate HTTP/1.1" 200 OK
+[2026-04-15 14:14:10] INFO:     127.0.0.1:48246 - "GET /v1/models HTTP/1.1" 200 OK
+[2026-04-15 14:14:18] INFO:     127.0.0.1:48056 - "POST /generate HTTP/1.1" 200 OK
+[2026-04-15 14:14:33] INFO:     127.0.0.1:49904 - "GET /get_model_info HTTP/1.1" 200 OK
+[2026-04-15 14:14:42] INFO:     127.0.0.1:40290 - "POST /generate HTTP/1.1" 200 OK
+[2026-04-15 14:14:42] INFO:     127.0.0.1:49916 - "POST /generate HTTP/1.1" 200 OK
+[2026-04-15 14:29:41] INFO:     127.0.0.1:34070 - "GET /v1/models HTTP/1.1" 200 OK
+[2026-04-15 14:30:04] INFO:     127.0.0.1:41368 - "GET /get_model_info HTTP/1.1" 200 OK
+[2026-04-15 14:32:22] INFO:     127.0.0.1:44258 - "GET /model_info HTTP/1.1" 200 OK

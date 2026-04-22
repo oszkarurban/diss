@@ -1,0 +1,10 @@
+policy,model,dataset,match_rate,n_deciles
+v3_dynamic,llama,livecodebench,0.2,10
+v3_dynamic,llama,math500,0.0,10
+v3_dynamic,llama,mtbench,0.2,10
+v6_dynamic,llama,livecodebench,0.1,10
+v6_dynamic,llama,math500,0.0,10
+v6_dynamic,llama,mtbench,0.0,10
+v6_dynamic,qwen,livecodebench,0.0,10
+v6_dynamic,qwen,math500,0.0,10
+v6_dynamic,qwen,mtbench,0.0,10

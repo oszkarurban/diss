@@ -1,0 +1,29 @@
+{
+  "server": "localhost:30000",
+  "num_questions": 10,
+  "num_turns": 20,
+  "num_steps_total": 0,
+  "elapsed_seconds": 32.33717170602176,
+  "per_turn_logs": [
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    []
+  ]
+}
